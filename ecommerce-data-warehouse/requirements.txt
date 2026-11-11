@@ -1,0 +1,10 @@
+# Tested with Python 3.12.x on Windows 11 and PostgreSQL 18.6 (docker image postgres:18)
+pandas==3.1.1
+pyarrow==26.0.1          # pandas 3 string backend (vectorised .str operations)
+numpy==2.5.4
+SQLAlchemy==2.1.8
+psycopg[binary]==3.3.8
+Faker==40.54.0
+pydantic==2.14.3
+python-dotenv==1.2.4
+pytest==9.2.0

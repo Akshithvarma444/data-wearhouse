@@ -1,0 +1,37 @@
+customer_id,first_name,last_name,email,city,state,country,created_at,updated_at
+CX0000001,Arjun,Kumer,x.arjun.kumer.1@outlook.com,Visakhapatnam,Andhra Pradesh,India,2021-04-12 00:43:47,2021-05-05 11:33:38
+CX0000002,Shivansh,De,x.shivansh.de.2@rediffmail.com,Mysuru,Karnataka,India,2022-05-19 00:45:03,2022-05-22 20:08:17
+CX0000003,Onveer,Bhalla,x.onveer.bhalla.3@rediffmail.com,Hyderabad,Telangana,India,2021-02-27 15:26:40,2021-03-12 01:50:32
+CX0000004,Ishwar,More,x.ishwar.more.4@outlook.com,Chennai,Tamil Nadu,India,2022-05-10 11:37:30,2022-05-27 21:25:02
+CX0000005,Isha,Srinivas,x.isha.srinivas.5@hotmail.com,Kolkata,West Bengal,India,2022-01-31 23:28:40,2022-02-13 08:51:11
+CX0000006,Upadhriti,Baria,x.upadhriti.baria.6@outlook.com,Bengaluru,Karnataka,India,2021-08-25 15:48:10,2021-09-05 19:29:47
+CX0000007,Aradhana,Shetty,x.aradhana.shetty.7@gmail.com,New Delhi,Delhi,India,2022-09-04 14:29:02,2022-09-08 18:12:44
+CX0000008,Qadim,Sen,x.qadim.sen.8@rediffmail.com,Pune,Maharashtra,India,2021-11-07 01:51:36,2021-11-16 14:28:21
+CX0000009,Daksha,Dugal,x.daksha.dugal.9@outlook.com,Bengaluru,Karnataka,India,2021-12-13 11:44:23,2021-12-19 10:59:58
+CX0000010,Arya,Palla,x.arya.palla.10@rediffmail.com,Noida,Uttar Pradesh,India,2021-06-01 06:30:37,2021-06-08 19:25:03
+CX0000011,Lavanya,Chatterjee,x.lavanya.chatterjee.11@outlook.com,Kolkata,West Bengal,India,2021-01-03 17:24:15,2021-01-20 19:37:28
+CX0000012,Yug,Sagar,x.yug.sagar.12@outlook.com,Bhopal,Madhya Pradesh,India,2021-08-23 23:31:58,2021-09-08 17:42:08
+CX0000013,Robert,Rajagopalan,x.robert.rajagopalan.13@gmail.com,Kochi,Kerala,India,2022-02-18 13:40:04,2022-03-05 17:59:08
+CX0000014,Sanaya,Jani,x.sanaya.jani.14@outlook.com,Hyderabad,Telangana,India,2022-02-20 12:42:03,2022-03-01 13:47:18
+CX0000015,Rajata,Bassi,x.rajata.bassi.15@rediffmail.com,Bhopal,Madhya Pradesh,India,2022-02-12 10:17:36,2022-03-08 10:06:31
+CX0000016,Sudiksha,Virk,x.sudiksha.virk.16@yahoo.co.in,Indore,Madhya Pradesh,India,2021-05-11 04:27:28,2021-05-13 09:02:51
+CX0000017,Ladli,Krishnan,x.ladli.krishnan.17@rediffmail.com,Chennai,Tamil Nadu,India,2022-04-21 03:34:33,2022-04-29 17:07:49
+CX0000018,Balveer,Subramanian,x.balveer.subramanian.18@gmail.com,Hyderabad,Telangana,India,2022-08-07 02:51:18,2022-08-10 01:39:30
+CX0000019,Udant,Pradhan,x.udant.pradhan.19@yahoo.co.in,Noida,Uttar Pradesh,India,2022-04-11 23:54:14,2022-04-20 11:16:12
+CX0000020,Jai,Sandhu,x.jai.sandhu.20@outlook.com,New Delhi,Delhi,India,2022-11-16 02:26:14,2022-12-10 03:34:32
+CX0000021,Keya,Sagar,x.keya.sagar.21@hotmail.com,Bengaluru,Karnataka,India,2022-09-18 16:48:17,2022-09-27 20:33:46
+CX0000022,Harini,Comar,x.harini.comar.22@yahoo.co.in,Mumbai,Maharashtra,India,2022-09-29 23:11:46,2022-10-22 16:20:40
+CX0000023,Charan,Kala,x.charan.kala.23@yahoo.co.in,Vijayawada,Andhra Pradesh,India,2021-06-09 21:55:11,2021-06-22 06:57:32
+CX0000024,Wridesh,Lata,x.wridesh.lata.24@outlook.com,Noida,Uttar Pradesh,India,2021-07-14 08:21:47,2021-07-31 20:11:14
+CX0000025,Simon,Mallick,x.simon.mallick.25@hotmail.com,Kochi,Kerala,India,2021-08-01 06:15:03,2021-08-12 16:42:04
+CX0000026,Ojasvi,Balakrishnan,x.ojasvi.balakrishnan.26@hotmail.com,Vijayawada,Andhra Pradesh,India,2022-01-12 16:27:46,2022-01-19 07:59:05
+CX0000027,Hredhaan,Mody,x.hredhaan.mody.27@gmail.com,Kolkata,West Bengal,India,2021-07-18 01:25:02,2021-08-06 03:57:17
+CX0000028,Tripti,Chander,x.tripti.chander.28@yahoo.co.in,Ahmedabad,Gujarat,India,2022-08-11 02:38:03,2022-09-04 08:08:23
+CX0000029,Luke,Rege,x.luke.rege.29@hotmail.com,New Delhi,Delhi,India,2021-03-11 13:33:21,2021-03-18 03:40:14
+CX0000030,Jagdish,Prasad,x.jagdish.prasad.30@gmail.com,New Delhi,Delhi,India,2021-12-16 06:26:53,2022-01-04 17:41:54
+,Arjun,Kumer,missing.id@gmail.com,Visakhapatnam,Andhra Pradesh,India,2021-04-12 00:43:47,2021-05-05 11:33:38
+C9000002,Arjun,Kumer,ravi.kumar_at_gmail.com,Visakhapatnam,Andhra Pradesh,India,2021-04-12 00:43:47,2021-05-05 11:33:38
+CX0000002,Shivansh,De,x.shivansh.de.2@rediffmail.com,Mysuru,Karnataka,India,2022-05-19 00:45:03,2022-05-22 20:08:17
+C9000004,Arjun,Kumer,conflict.a@gmail.com,Hyderabad,Telangana,India,2022-06-01 10:00:00,2022-06-01 10:00:00
+C9000004,Arjun,Kumer,conflict.a@gmail.com,Chennai,Tamil Nadu,India,2022-06-01 10:00:00,2022-06-01 10:00:00
+C9000005,Arjun,Kumer,bad.date@gmail.com,Visakhapatnam,Andhra Pradesh,India,2024-02-30 10:00:00,2024-03-01 10:00:00

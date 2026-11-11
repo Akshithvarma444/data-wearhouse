@@ -1,0 +1,41 @@
+customer_id,first_name,last_name,email,city,state,country,created_at,updated_at
+C0000001,Arjun,Chatterjee,arjun.chatterjee.1@hotmail.com,Kolkata,West Bengal,India,2022-03-20 14:46:22,2022-03-24 02:54:26
+C0000002,Shivansh,Sagar,shivansh.sagar.2@rediffmail.com,Bhopal,Madhya Pradesh,India,2021-03-05 23:50:40,2021-03-20 14:18:11
+C0000003,Onveer,Rajagopalan,onveer.rajagopalan.3@outlook.com,Kochi,Kerala,India,2021-12-20 10:53:49,2021-12-22 19:42:49
+C0000004,Ishwar,Jani,ishwar.jani.4@outlook.com,Hyderabad,Telangana,India,2021-07-30 04:55:13,2021-08-15 10:49:41
+C0000005,Isha,Bassi,isha.bassi.5@outlook.com,Bhopal,Madhya Pradesh,India,2022-01-15 19:23:11,2022-01-31 12:38:00
+C0000006,Upadhriti,Virk,upadhriti.virk.6@hotmail.com,Indore,Madhya Pradesh,India,2022-05-29 21:23:05,2022-06-01 00:03:04
+C0000007,Aradhana,Krishnan,aradhana.krishnan.7@yahoo.co.in,Chennai,Tamil Nadu,India,2021-06-15 00:56:43,2021-07-03 23:26:16
+C0000008,Qadim,Subramanian,qadim.subramanian.8@gmail.com,Hyderabad,Telangana,India,2021-01-22 13:50:13,2021-02-01 23:19:16
+C0000009,Daksha,Pradhan,daksha.pradhan.9@yahoo.co.in,Noida,Uttar Pradesh,India,2022-05-31 12:46:57,2022-06-20 04:54:51
+C0000010,Arya,Sandhu,arya.sandhu.10@gmail.com,New Delhi,Delhi,India,2021-06-04 20:59:06,2021-06-05 21:57:12
+C0000011,Lavanya,Sagar,lavanya.sagar.11@gmail.com,Bengaluru,Karnataka,India,2022-06-02 04:50:53,2022-06-06 16:31:19
+C0000012,Yug,Comar,yug.comar.12@gmail.com,Mumbai,Maharashtra,India,2021-07-18 04:14:42,2021-07-30 12:38:22
+C0000013,Robert,Kala,robert.kala.13@rediffmail.com,Vijayawada,Andhra Pradesh,India,2021-05-28 16:41:24,2021-06-02 09:37:30
+C0000014,Sanaya,Lata,sanaya.lata.14@rediffmail.com,Noida,Uttar Pradesh,India,2022-01-21 10:43:37,2022-01-29 16:38:37
+C0000015,Rajata,Mallick,rajata.mallick.15@rediffmail.com,Kochi,Kerala,India,2021-07-04 03:45:03,2021-07-20 16:06:36
+C0000016,Sudiksha,Balakrishnan,sudiksha.balakrishnan.16@outlook.com,Vijayawada,Andhra Pradesh,India,2022-05-25 10:20:31,2022-05-29 01:03:23
+C0000017,Ladli,Mody,ladli.mody.17@rediffmail.com,Kolkata,West Bengal,India,2022-10-07 12:32:28,2022-10-24 11:09:46
+C0000018,Balveer,Chander,balveer.chander.18@gmail.com,Ahmedabad,Gujarat,India,2022-09-25 12:37:55,2022-09-28 02:40:25
+C0000019,Udant,Rege,udant.rege.19@hotmail.com,New Delhi,Delhi,India,2022-01-23 02:00:06,2022-01-27 11:06:45
+C0000020,Jai,Prasad,jai.prasad.20@outlook.com,New Delhi,Delhi,India,2021-03-10 04:16:48,2021-03-24 20:52:00
+C0000021,Keya,Tandon,keya.tandon.21@hotmail.com,Noida,Uttar Pradesh,India,2022-09-03 16:42:33,2022-09-23 12:47:56
+C0000022,Harini,Rout,harini.rout.22@gmail.com,Kolkata,West Bengal,India,2022-01-16 22:57:30,2022-01-21 05:18:50
+C0000023,Charan,Kale,charan.kale.23@outlook.com,Ahmedabad,Gujarat,India,2021-07-27 04:15:41,2021-08-03 16:15:25
+C0000024,Wridesh,Verma,wridesh.verma.24@rediffmail.com,Visakhapatnam,Andhra Pradesh,India,2022-07-13 08:17:44,2022-08-05 11:22:03
+C0000025,Simon,Keer,simon.keer.25@outlook.com,Lucknow,Uttar Pradesh,India,2021-07-14 20:50:41,2021-08-08 14:39:17
+C0000026,Ojasvi,Guha,ojasvi.guha.26@outlook.com,Ahmedabad,Gujarat,India,2022-05-01 19:55:44,2022-05-16 08:33:56
+C0000027,Hredhaan,Suresh,hredhaan.suresh.27@gmail.com,Ahmedabad,Gujarat,India,2021-05-14 22:29:59,2021-05-26 02:43:21
+C0000028,Tripti,Kalita,tripti.kalita.28@yahoo.co.in,Hyderabad,Telangana,India,2021-10-22 13:06:41,2021-10-31 05:13:59
+C0000029,Luke,Bawa,luke.bawa.29@yahoo.co.in,Mumbai,Maharashtra,India,2021-11-14 03:57:29,2021-11-29 11:25:45
+C0000030,Jagdish,Loke,jagdish.loke.30@yahoo.co.in,Kolkata,West Bengal,India,2022-07-31 06:13:03,2022-08-15 00:46:00
+C0000031,Jai,Saraf,jai.saraf.31@rediffmail.com,Bengaluru,Karnataka,India,2022-01-11 18:08:27,2022-01-19 02:59:33
+C0000032,Dayamai,Chopra,dayamai.chopra.32@rediffmail.com,Chennai,Tamil Nadu,India,2021-04-11 08:52:49,2021-04-11 22:33:45
+C0000033,Arunima,Lanka,arunima.lanka.33@rediffmail.com,Nagpur,Maharashtra,India,2022-11-18 07:59:49,2022-11-22 02:53:45
+C0000034,Manbir,Borra,manbir.borra.34@yahoo.co.in,Bengaluru,Karnataka,India,2021-06-19 00:52:19,2021-07-13 00:00:26
+C0000035,Victor,Purohit,victor.purohit.35@hotmail.com,Mumbai,Maharashtra,India,2021-12-22 01:35:31,2022-01-01 12:29:05
+C0000036,Amrita,Madan,amrita.madan.36@gmail.com,Hyderabad,Telangana,India,2021-07-16 09:01:21,2021-07-28 10:24:16
+C0000037,Upadhriti,Gulati,upadhriti.gulati.37@yahoo.co.in,Hyderabad,Telangana,India,2021-08-24 16:35:37,2021-09-05 08:51:29
+C0000038,Tristan,De,tristan.de.38@gmail.com,Noida,Uttar Pradesh,India,2022-02-02 12:50:13,2022-02-22 02:28:41
+C0000039,Ekiya,Munshi,ekiya.munshi.39@yahoo.co.in,Ahmedabad,Gujarat,India,2022-04-29 22:23:28,2022-05-01 13:21:54
+C0000040,Nitesh,Pingle,nitesh.pingle.40@hotmail.com,Vijayawada,Andhra Pradesh,India,2021-09-18 21:12:42,2021-09-20 22:50:58

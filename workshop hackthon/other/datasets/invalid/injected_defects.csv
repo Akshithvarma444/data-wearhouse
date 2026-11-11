@@ -1,0 +1,24 @@
+entity,source_record_id,defect,expected_reason_code
+customers,,customer_id is empty,MISSING_REQUIRED_FIELD
+customers,C9000002,email has no @,INVALID_EMAIL
+customers,CX0000002,exact duplicate row,EXACT_DUPLICATE
+customers,C9000004,"same id, different city (2 rows)",CONFLICTING_DUPLICATE
+customers,C9000005,created_at is 30 Feb,INVALID_TIMESTAMP
+products,P900001,negative unit_price,NEGATIVE_VALUE
+products,P900002,blank product_name,MISSING_REQUIRED_FIELD
+products,P900003,non-numeric unit_price,INVALID_NUMBER
+orders,O90000001,customer does not exist,UNKNOWN_CUSTOMER_REFERENCE
+orders,O90000002,status not in allowed set,INVALID_ALLOWED_VALUE
+orders,O90000003,order_date not a valid timestamp,INVALID_TIMESTAMP
+order_items,OIX000000002,exact duplicate row,EXACT_DUPLICATE
+order_items,OI900000001,"same id, different quantity (2 rows)",CONFLICTING_DUPLICATE
+order_items,OI900000002,negative quantity,NON_POSITIVE_QUANTITY
+order_items,OI900000003,zero quantity,NON_POSITIVE_QUANTITY
+order_items,OI900000004,negative unit_price,NEGATIVE_VALUE
+order_items,OI900000005,discount 150.00 > gross 100.00,EXCESSIVE_DISCOUNT
+order_items,OI900000006,product does not exist,UNKNOWN_PRODUCT_REFERENCE
+order_items,OI900000007,order does not exist,UNKNOWN_ORDER_REFERENCE
+order_items,OI900000008,parent order O90000002 is itself rejected,UNKNOWN_ORDER_REFERENCE
+order_items,OI900000009,non-numeric quantity,INVALID_NUMBER
+order_items,OI900000010,negative discount,NEGATIVE_VALUE
+order_items,OI-BAD-ROW,row has 3 fields instead of 7,MALFORMED_ROW

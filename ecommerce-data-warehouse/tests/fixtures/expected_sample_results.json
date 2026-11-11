@@ -1,0 +1,75 @@
+{
+  "total_revenue": {
+    "orders": 37,
+    "order_lines": 91,
+    "units_sold": 141,
+    "gross_sales": "348858.93",
+    "discounts": "20424.25",
+    "net_revenue": "328434.68"
+  },
+  "average_order_value": "8876.61",
+  "yearly_revenue": {
+    "2023": "74354.86",
+    "2024": "141061.71",
+    "2025": "113018.11"
+  },
+  "category_revenue": {
+    "Beauty & Personal Care": "165780.20",
+    "Books": "5543.97",
+    "Electronics": "3658.00",
+    "Fashion": "47036.71",
+    "Grocery": "6174.10",
+    "Home & Kitchen": "81001.75",
+    "Sports & Fitness": "19239.95"
+  },
+  "city_revenue": {
+    "Ahmedabad": "49727.13",
+    "Bengaluru": "16075.28",
+    "Chennai": "3965.12",
+    "Hyderabad": "46136.36",
+    "Indore": "7542.25",
+    "Kochi": "54386.81",
+    "Kolkata": "80773.30",
+    "Mumbai": "849.00",
+    "Nagpur": "6147.43",
+    "New Delhi": "11159.95",
+    "Noida": "14578.80",
+    "Vijayawada": "37093.25"
+  },
+  "revenue_by_payment_method": {
+    "CASH_ON_DELIVERY": "10565.00",
+    "CREDIT_CARD": "55427.08",
+    "DEBIT_CARD": "13781.75",
+    "NET_BANKING": "56608.70",
+    "UPI": "173007.40",
+    "WALLET": "19044.75"
+  },
+  "orders_by_payment_method": {
+    "CASH_ON_DELIVERY": 3,
+    "CREDIT_CARD": 6,
+    "DEBIT_CARD": 4,
+    "NET_BANKING": 3,
+    "UPI": 19,
+    "WALLET": 2
+  },
+  "order_status_orders": {
+    "CANCELLED": 2,
+    "DELIVERED": 25,
+    "PLACED": 5,
+    "RETURNED": 4,
+    "SHIPPED": 7
+  },
+  "top_10_products": [
+    "P000025",
+    "P000015",
+    "P000002",
+    "P000001",
+    "P000024",
+    "P000014",
+    "P000007",
+    "P000009",
+    "P000013",
+    "P000003"
+  ],
+  "all_lines_net_revenue": "364277.07"
+}

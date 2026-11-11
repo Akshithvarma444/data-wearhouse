@@ -1,0 +1,57 @@
+### python -m src.cli run --input data/sample   (first run)
+2026-11-11 10:14:52,400 | INFO    | ecommerce_dw.pipeline | Pipeline run_20261111T044452Z_d33e4cee started for D:\data wearhouse\ecommerce-data-warehouse\data\sample (batch_size=5000)
+2026-11-11 10:14:53,259 | INFO    | ecommerce_dw.pipeline | Pipeline run_20261111T044452Z_d33e4cee finished with status SUCCESS in 0.743s
+2026-11-11 10:14:53,262 | INFO    | ecommerce_dw.pipeline | 
+================================================================
+Pipeline Execution Summary
+================================================================
+Run ID              : run_20261111T044452Z_d33e4cee
+Status              : SUCCESS
+Source              : D:\data wearhouse\ecommerce-data-warehouse\data\sample
+Input Records       : 208
+Valid Records       : 208
+Rejected Records    : 0
+Inserted Fact Rows  : 100
+Updated Fact Rows   : 0
+Unchanged Fact Rows : 0
+Execution Time      : 0.743s
+Reconciliation      : PASSED
+
+Entity           Input     Valid  Rejected   Skipped
+customers           40        40         0         0
+products            25        25         0         0
+orders              43        43         0         0
+order_items        100       100         0         0
+
+Stage timings (s): extract=0.023, validate=0.089, land_raw_and_quarantine=0.147, transform=0.026, load_source=0.047, load_dimensions=0.031, transform_facts=0.011, load_dim_date=0.067, resolve_keys=0.022, load_facts=0.058, load_warehouse=0.249, reconcile=0.045
+================================================================
+Reconciliation report: D:\data wearhouse\ecommerce-data-warehouse\reports\reconciliation_report.csv
+
+### python -m src.cli run --input data/sample   (second run - idempotency)
+2026-11-11 10:14:55,973 | INFO    | ecommerce_dw.pipeline | Pipeline run_20261111T044455Z_14c20ae5 started for D:\data wearhouse\ecommerce-data-warehouse\data\sample (batch_size=5000)
+2026-11-11 10:14:56,902 | INFO    | ecommerce_dw.pipeline | Pipeline run_20261111T044455Z_14c20ae5 finished with status SUCCESS in 0.820s
+2026-11-11 10:14:56,903 | INFO    | ecommerce_dw.pipeline | 
+================================================================
+Pipeline Execution Summary
+================================================================
+Run ID              : run_20261111T044455Z_14c20ae5
+Status              : SUCCESS
+Source              : D:\data wearhouse\ecommerce-data-warehouse\data\sample
+Input Records       : 208
+Valid Records       : 208
+Rejected Records    : 0
+Inserted Fact Rows  : 0
+Updated Fact Rows   : 0
+Unchanged Fact Rows : 100
+Execution Time      : 0.820s
+Reconciliation      : PASSED
+
+Entity           Input     Valid  Rejected   Skipped
+customers           40        40         0         0
+products            25        25         0         0
+orders              43        43         0         0
+order_items        100       100         0         0
+
+Stage timings (s): extract=0.032, validate=0.146, land_raw_and_quarantine=0.156, transform=0.028, load_source=0.030, load_dimensions=0.027, transform_facts=0.009, load_dim_date=0.059, resolve_keys=0.024, load_facts=0.061, load_warehouse=0.223, reconcile=0.067
+================================================================
+Reconciliation report: D:\data wearhouse\ecommerce-data-warehouse\reports\reconciliation_report.csv

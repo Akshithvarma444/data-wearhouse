@@ -1,0 +1,22 @@
+run_id,check_name,severity,status,source_value,target_value,difference,explanation
+run_20261111T042605Z_53bdcdf8,customers: input = valid + rejected + skipped,CRITICAL,PASS,10000,10000,0,"file records=10000; valid=10000, rejected=0, skipped=0"
+run_20261111T042605Z_53bdcdf8,customers: rejected rows = quarantine rows,CRITICAL,PASS,0,0,0,every rejected raw record has exactly one ops.rejected_records row
+run_20261111T042605Z_53bdcdf8,products: input = valid + rejected + skipped,CRITICAL,PASS,1000,1000,0,"file records=1000; valid=1000, rejected=0, skipped=0"
+run_20261111T042605Z_53bdcdf8,products: rejected rows = quarantine rows,CRITICAL,PASS,0,0,0,every rejected raw record has exactly one ops.rejected_records row
+run_20261111T042605Z_53bdcdf8,orders: input = valid + rejected + skipped,CRITICAL,PASS,40120,40120,0,"file records=40120; valid=40120, rejected=0, skipped=0"
+run_20261111T042605Z_53bdcdf8,orders: rejected rows = quarantine rows,CRITICAL,PASS,0,0,0,every rejected raw record has exactly one ops.rejected_records row
+run_20261111T042605Z_53bdcdf8,order_items: input = valid + rejected + skipped,CRITICAL,PASS,100000,100000,0,"file records=100000; valid=100000, rejected=0, skipped=0"
+run_20261111T042605Z_53bdcdf8,order_items: rejected rows = quarantine rows,CRITICAL,PASS,0,0,0,every rejected raw record has exactly one ops.rejected_records row
+run_20261111T042605Z_53bdcdf8,order_items: source record count,INFO,INFO,100000,100000,0,records read from order_items.csv
+run_20261111T042605Z_53bdcdf8,order_items: rejected record count,INFO,INFO,0,0,0,quarantined in ops.rejected_records
+run_20261111T042605Z_53bdcdf8,valid source order items = fact rows present,CRITICAL,PASS,100000,100000,0,each valid order line of this run exists exactly once in dw.fact_sales
+run_20261111T042605Z_53bdcdf8,total gross sales (valid source vs fact),CRITICAL,PASS,630853143.85,630853143.85,0.00,"sum(quantity * unit_price), exact NUMERIC"
+run_20261111T042605Z_53bdcdf8,total discounts (valid source vs fact),CRITICAL,PASS,33050466.47,33050466.47,0.00,sum(discount_amount)
+run_20261111T042605Z_53bdcdf8,total net revenue (valid source vs fact),CRITICAL,PASS,597802677.38,597802677.38,0.00,sum(gross - discount)
+run_20261111T042605Z_53bdcdf8,duplicate records quarantined (all entities),INFO,INFO,0,0,0,"exact duplicates: first copy kept, later copies rejected; conflicting duplicates: all copies rejected"
+run_20261111T042605Z_53bdcdf8,fact rows inserted / updated / unchanged,INFO,INFO,100000 / 0 / 0,100000 / 0 / 0,,"unchanged = events already loaded by an earlier run with identical content (idempotent re-run, not re-inserted); updated = corrected events or rebuilt lines of changed orders"
+run_20261111T042605Z_53bdcdf8,missing dimension references,CRITICAL,PASS,0,0,0,facts whose customer/product/date key has no dimension row
+run_20261111T042605Z_53bdcdf8,facts linked to wrong dimension version / date,CRITICAL,PASS,0,0,0,"point-in-time check over the whole fact table: order timestamp inside the version's effective range, business keys match the source"
+run_20261111T042605Z_53bdcdf8,warehouse total: source order items = fact rows,CRITICAL,PASS,100000,100000,0,all-time: source.order_items vs dw.fact_sales
+run_20261111T042605Z_53bdcdf8,warehouse total: source net revenue = fact net revenue,CRITICAL,PASS,597802677.38,597802677.38,0.00,"all-time, exact NUMERIC"
+run_20261111T042605Z_53bdcdf8,business keys with more than one current version,CRITICAL,PASS,0,0,0,SCD2 integrity

@@ -1,0 +1,56 @@
+{
+  "generated_at": "2026-11-11T06:14:52+00:00",
+  "postgres": "18.6 (Debian 18.6-1.pgdg13+2)",
+  "rows": [
+    {
+      "order_items": 1000,
+      "orders": 403,
+      "generate_s": 0.122,
+      "extract_s": 0.016,
+      "validate_s": 0.06,
+      "transform_s": 0.056,
+      "load_s": 0.787,
+      "reconcile_s": 0.715,
+      "total_s": 1.756,
+      "rows_per_second": 569.5,
+      "rerun_s": 1.436,
+      "rerun_inserted": 0,
+      "status": "SUCCESS/SUCCESS"
+    },
+    {
+      "order_items": 10000,
+      "orders": 4043,
+      "generate_s": 0.068,
+      "extract_s": 0.03,
+      "validate_s": 0.256,
+      "transform_s": 0.333,
+      "load_s": 1.927,
+      "reconcile_s": 0.222,
+      "total_s": 2.899,
+      "rows_per_second": 3449.5,
+      "rerun_s": 2.065,
+      "rerun_inserted": 0,
+      "status": "SUCCESS/SUCCESS"
+    },
+    {
+      "order_items": 100000,
+      "orders": 40120,
+      "generate_s": 1.048,
+      "extract_s": 0.405,
+      "validate_s": 2.265,
+      "transform_s": 2.358,
+      "load_s": 18.18,
+      "reconcile_s": 3.284,
+      "total_s": 26.627,
+      "rows_per_second": 3755.6,
+      "rerun_s": 21.706,
+      "rerun_inserted": 0,
+      "status": "SUCCESS/SUCCESS"
+    }
+  ],
+  "experiment": {
+    "rows": 10000,
+    "insert_s": 24.343,
+    "copy_s": 0.446
+  }
+}

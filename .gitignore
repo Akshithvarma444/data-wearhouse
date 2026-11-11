@@ -1,0 +1,20 @@
+# secrets and local config
+.env
+.env.*
+!.env.example
+**/certs/*.crt
+
+# tooling / editors / OS
+.sf/
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# dependencies and builds
+**/node_modules/
+**/dist/
+**/.venv/
+**/__pycache__/
+**/.pytest_cache/
+*.py[cod]

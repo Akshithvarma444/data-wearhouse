@@ -1,0 +1,71 @@
+{
+  "generated_at": "2026-11-11T05:49:38+00:00",
+  "postgres": "18.6 (Debian 18.6-1.pgdg13+2)",
+  "rows": [
+    {
+      "order_items": 1000,
+      "orders": 403,
+      "generate_s": 0.424,
+      "extract_s": 0.056,
+      "validate_s": 0.224,
+      "transform_s": 0.218,
+      "load_s": 0.95,
+      "reconcile_s": 0.809,
+      "total_s": 2.392,
+      "rows_per_second": 418.1,
+      "rerun_s": 2.164,
+      "rerun_inserted": 0,
+      "status": "SUCCESS/SUCCESS"
+    },
+    {
+      "order_items": 10000,
+      "orders": 4043,
+      "generate_s": 0.186,
+      "extract_s": 0.229,
+      "validate_s": 1.062,
+      "transform_s": 0.883,
+      "load_s": 3.203,
+      "reconcile_s": 0.342,
+      "total_s": 5.853,
+      "rows_per_second": 1708.5,
+      "rerun_s": 4.007,
+      "rerun_inserted": 0,
+      "status": "SUCCESS/SUCCESS"
+    },
+    {
+      "order_items": 100000,
+      "orders": 40120,
+      "generate_s": 1.869,
+      "extract_s": 0.776,
+      "validate_s": 5.401,
+      "transform_s": 4.385,
+      "load_s": 17.952,
+      "reconcile_s": 2.199,
+      "total_s": 30.861,
+      "rows_per_second": 3240.3,
+      "rerun_s": 24.353,
+      "rerun_inserted": 0,
+      "status": "SUCCESS/SUCCESS"
+    },
+    {
+      "order_items": 1000000,
+      "orders": 400737,
+      "generate_s": 21.957,
+      "extract_s": 10.551,
+      "validate_s": 67.906,
+      "transform_s": 56.745,
+      "load_s": 237.514,
+      "reconcile_s": 15.133,
+      "total_s": 388.448,
+      "rows_per_second": 2574.3,
+      "rerun_s": 201.66,
+      "rerun_inserted": 0,
+      "status": "SUCCESS/SUCCESS"
+    }
+  ],
+  "experiment": {
+    "rows": 10000,
+    "insert_s": 19.596,
+    "copy_s": 0.388
+  }
+}

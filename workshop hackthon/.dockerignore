@@ -1,0 +1,16 @@
+**/node_modules
+**/.venv
+**/__pycache__
+**/.pytest_cache
+frontend/dist
+frontend/.env
+frontend/.env.local
+backend/.env
+backend/logs
+other/docker/.env
+other/datasets/generated
+other/datasets/uploads
+other/datasets/benchmark
+other/datasets/scenarios
+other/reports
+other/screenshots

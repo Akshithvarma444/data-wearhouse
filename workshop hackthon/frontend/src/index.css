@@ -1,0 +1,21 @@
+@import "tailwindcss";
+
+@theme {
+  --color-navy-950: #0f172a;
+  --color-navy-900: #1e293b;
+  --color-navy-800: #334155;
+  --color-navy-700: #475569;
+  --color-brand-50: #eff6ff;
+  --color-brand-100: #dbeafe;
+  --color-brand-200: #bfdbfe;
+  --color-brand-400: #60a5fa;
+  --color-brand-500: #3b82f6;
+  --color-brand-600: #2563eb;
+  --color-brand-700: #1d4ed8;
+  --font-sans: "Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif;
+}
+
+html, body, #root { height: 100%; }
+body { @apply bg-[#f7f8fa] text-slate-800; font-size: 14px; }
+.tabular { font-variant-numeric: tabular-nums; }
+:focus-visible { outline: 2px solid var(--color-brand-500); outline-offset: 2px; }

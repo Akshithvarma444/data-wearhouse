@@ -1,0 +1,36 @@
+# Frontend production build - 2026-11-11 07:07 UTC
+
+> ecommerce-dw-dashboard@1.0.0 build
+> tsc -b && vite build
+
+vite v6.3.5 building for production...
+transforming...
+✓ 1990 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                            0.47 kB │ gzip:   0.30 kB
+dist/assets/index-IHEapW5o.css            23.57 kB │ gzip:   5.33 kB
+dist/assets/circle-check-_hiHJ2n-.js       0.35 kB │ gzip:   0.27 kB
+dist/assets/download-B6-zX9bV.js           0.41 kB │ gzip:   0.30 kB
+dist/assets/shield-alert-C1YY-b34.js       0.53 kB │ gzip:   0.37 kB
+dist/assets/useApi-D5u4sfj3.js             0.53 kB │ gzip:   0.34 kB
+dist/assets/StatCard-B63bD1ox.js           0.86 kB │ gzip:   0.45 kB
+dist/assets/shopping-cart-CHV3OFr-.js      0.88 kB │ gzip:   0.44 kB
+dist/assets/Button-Chn6S3g0.js             1.00 kB │ gzip:   0.50 kB
+dist/assets/Field-BJ6C7BKr.js              1.02 kB │ gzip:   0.46 kB
+dist/assets/DataTable-DOzM92yl.js          1.05 kB │ gzip:   0.56 kB
+dist/assets/PipelineHistory-Dzuwxef6.js    2.01 kB │ gzip:   0.90 kB
+dist/assets/format-CxprD-Gj.js             2.37 kB │ gzip:   0.91 kB
+dist/assets/Settings-CgwL4X8_.js           2.72 kB │ gzip:   1.10 kB
+dist/assets/StatusBadge-vXkwYk_-.js        2.94 kB │ gzip:   1.03 kB
+dist/assets/DataWarehouse-CeaFOjyg.js      4.37 kB │ gzip:   1.85 kB
+dist/assets/DataGenerator-CACgItmp.js      4.52 kB │ gzip:   1.94 kB
+dist/assets/Reports-CffDJiQv.js            5.09 kB │ gzip:   1.86 kB
+dist/assets/Analytics-Dq-VQJeS.js          5.87 kB │ gzip:   1.96 kB
+dist/assets/DataSources-0BGn9JPi.js        5.90 kB │ gzip:   2.39 kB
+dist/assets/Dashboard-DQVsYwHn.js          7.09 kB │ gzip:   2.42 kB
+dist/assets/DataQuality-CQnbm8zX.js        7.10 kB │ gzip:   2.63 kB
+dist/assets/Pipeline-C841Qpsi.js           7.56 kB │ gzip:   2.73 kB
+dist/assets/index-DS-bNesX.js            242.21 kB │ gzip:  77.83 kB
+dist/assets/charts-D1TurhBz.js           349.10 kB │ gzip: 104.11 kB
+✓ built in 7.41s

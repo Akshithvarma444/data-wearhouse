@@ -1,0 +1,28 @@
+### python -m src.cli run --input data/raw
+2026-11-11 10:15:09,139 | INFO    | ecommerce_dw.pipeline | Pipeline run_20261111T044509Z_7f02662e started for D:\data wearhouse\ecommerce-data-warehouse\data\raw (batch_size=5000)
+2026-11-11 10:15:15,885 | INFO    | ecommerce_dw.pipeline | Pipeline run_20261111T044509Z_7f02662e finished with status SUCCESS in 6.643s
+2026-11-11 10:15:15,894 | INFO    | ecommerce_dw.pipeline | 
+================================================================
+Pipeline Execution Summary
+================================================================
+Run ID              : run_20261111T044509Z_7f02662e
+Status              : SUCCESS
+Source              : D:\data wearhouse\ecommerce-data-warehouse\data\raw
+Input Records       : 36,194
+Valid Records       : 36,194
+Rejected Records    : 0
+Inserted Fact Rows  : 24,994
+Updated Fact Rows   : 0
+Unchanged Fact Rows : 0
+Execution Time      : 6.643s
+Reconciliation      : PASSED
+
+Entity           Input     Valid  Rejected   Skipped
+customers        1,000     1,000         0         0
+products           200       200         0         0
+orders          10,000    10,000         0         0
+order_items     24,994    24,994         0         0
+
+Stage timings (s): extract=0.165, validate=0.695, land_raw_and_quarantine=0.605, transform=0.638, load_source=1.483, load_dimensions=0.132, transform_facts=0.391, load_dim_date=0.080, resolve_keys=0.441, load_facts=1.396, load_warehouse=3.943, reconcile=0.450
+================================================================
+Reconciliation report: D:\data wearhouse\ecommerce-data-warehouse\reports\reconciliation_report.csv

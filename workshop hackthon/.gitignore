@@ -1,0 +1,23 @@
+# secrets
+.env
+.env.local
+backend/.env
+other/docker/.env
+other/docker/certs/*.crt
+
+# dependencies / builds
+**/node_modules/
+frontend/dist/
+**/.venv/
+**/__pycache__/
+**/.pytest_cache/
+
+# runtime output (regenerated)
+backend/logs/
+other/datasets/generated/
+other/datasets/uploads/
+other/datasets/benchmark/
+other/datasets/scenarios/
+other/reports/reconciliation/
+other/reports/benchmark/
+other/reports/scenarios/

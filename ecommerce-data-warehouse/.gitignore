@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+*.egg-info/
+
+# Secrets
+.env
+
+# Generated data (regenerate with the generator - sample data IS committed)
+data/raw/*.csv
+data/generated/*
+!data/generated/.gitkeep
+
+# Runtime output
+logs/*
+!logs/.gitkeep
+reports/reconciliation/
+
+
+!reports/.gitkeep
+
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

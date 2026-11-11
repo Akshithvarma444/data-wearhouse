@@ -1,0 +1,40 @@
+Scenario demonstration (isolated database: ecommerce_dw_demo)
+==============================================================================
+
+### batch1_initial: status=SUCCESS input=8 valid=8 rejected=0 facts inserted=2 updated=0 unchanged=0 re-keyed=0
+
+### batch2_customer_moves: status=SUCCESS input=3 valid=3 rejected=0 facts inserted=1 updated=0 unchanged=0 re-keyed=0
+
+### batch3_late_arrivals: status=SUCCESS input=5 valid=5 rejected=0 facts inserted=1 updated=1 unchanged=0 re-keyed=0
+
+### batch4_missing_product: status=SUCCESS input=3 valid=2 rejected=1 facts inserted=1 updated=0 unchanged=0 re-keyed=0
+  quarantined: order_items OI5: product_id 'P999' not found among valid products
+
+dim_customer (SCD2):
+ customer_key customer_id      city      state effective_start_date effective_end_date  is_current
+            1          C1 Hyderabad  Telangana           1900-01-01         2024-06-01       False
+            3          C1   Chennai Tamil Nadu           2024-06-01         9999-12-31        True
+            2          C2 Bengaluru  Karnataka           1900-01-01         9999-12-31        True
+
+dim_product (SCD2):
+ product_key product_id    category   brand effective_start_date effective_end_date  is_current
+           1         P1 Electronics Samsung           1900-01-01         2024-05-01       False
+           3         P1     Mobiles Samsung           2024-05-01         9999-12-31        True
+           2         P2       Books Penguin           1900-01-01         9999-12-31        True
+
+fact_sales with the dimension versions they reference:
+order_item_id order_id  date_key  customer_key      city  product_key    category  quantity gross_sales discount_amount net_revenue
+          OI1       O1  20240310             1 Hyderabad            1 Electronics         2     2000.00          100.00     1900.00
+          OI2       O2  20240312             2 Bengaluru            2       Books         1      500.00            0.00      500.00
+          OI3       O3  20240715             3   Chennai            3     Mobiles         1     1000.00           50.00      950.00
+          OI4       O4  20240420             1 Hyderabad            1 Electronics         3     2850.00            0.00     2850.00
+          OI6       O5  20240801             2 Bengaluru            2       Books         2     1000.00           20.00      980.00
+
+Expected:
+ * C1 has two versions; OI1 (March) and OI4 (April, late) -> Hyderabad key,
+   OI3 (July) -> Chennai key.
+ * P1 has two versions; OI1/OI4 (before 2024-05-01) -> Electronics,
+   OI3 (July) moves to the Mobiles version when the late product change
+   arrives (in-place fact update - no new fact row).
+ * 7 order lines delivered over 4 batches (OI3 twice, OI5 invalid) -> 5 facts.
+ * OI5 (unknown product P999) is quarantined; no fact row, no broken FK.

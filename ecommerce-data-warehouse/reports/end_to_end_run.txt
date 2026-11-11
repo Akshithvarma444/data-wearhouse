@@ -1,0 +1,762 @@
+﻿Starting PostgreSQL (docker compose up -d) ...
+powershell :  Container ecommerce_dw_postgres Running 
+At line:1 char:361
++ ... warehouse"; powershell -NoProfile -ExecutionPolicy Bypass -File .\run ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ( Container ecom...stgres Running :String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+
+==============================================================================
+ 1. Generate sample dataset (100 order lines)
+==============================================================================
+customers            40 rows -> data\sample\customers.csv
+products             25 rows -> data\sample\products.csv
+orders               43 rows -> data\sample\orders.csv
+order_items         100 rows -> data\sample\order_items.csv
+Generated in 0.07s (seed=42)
+
+==============================================================================
+ 2. Generate intermediate dataset (10,000 orders)
+==============================================================================
+customers         1,000 rows -> D:\data wearhouse\ecommerce-data-warehouse\data\raw\customers.csv
+products            200 rows -> D:\data wearhouse\ecommerce-data-warehouse\data\raw\products.csv
+orders           10,000 rows -> D:\data wearhouse\ecommerce-data-warehouse\data\raw\orders.csv
+order_items      24,994 rows -> D:\data wearhouse\ecommerce-data-warehouse\data\raw\order_items.csv
+Generated in 0.40s (seed=42)
+
+==============================================================================
+ 3. Generate invalid test dataset
+==============================================================================
+Invalid test dataset written to D:\data wearhouse\ecommerce-data-warehouse\data\invalid (23 injected defects, see injected_defects.csv)
+
+==============================================================================
+ 4. Initialise database (reset)
+==============================================================================
+2026-11-11 10:38:19,869 | WARNING | ecommerce_dw.database | Dropped schemas: raw, source, dw, ops
+2026-11-11 10:38:19,885 | INFO    | ecommerce_dw.database | Applied source_schema.sql
+2026-11-11 10:38:19,906 | INFO    | ecommerce_dw.database | Applied warehouse_schema.sql
+2026-11-11 10:38:19,913 | INFO    | ecommerce_dw.database | Applied indexes.sql
+Database 'ecommerce_dw' initialised (schemas raw, source, dw, ops).
+
+==============================================================================
+ 5. Pipeline: intermediate dataset (first run)
+==============================================================================
+2026-11-11 10:38:21,800 | INFO    | ecommerce_dw.pipeline | Pipeline run_20261111T050821Z_0a83d7c9 started for D:\data wearhouse\ecommerce-data-warehouse\data\raw (batch_size=5000)
+2026-11-11 10:38:21,864 | INFO    | ecommerce_dw.ingestion | Extracted customers: 1000 record(s) from customers.csv (117389 bytes)
+2026-11-11 10:38:21,870 | INFO    | ecommerce_dw.ingestion | Extracted products: 200 record(s) from products.csv (20483 bytes)
+2026-11-11 10:38:21,922 | INFO    | ecommerce_dw.ingestion | Extracted orders: 10000 record(s) from orders.csv (776875 bytes)
+2026-11-11 10:38:21,967 | INFO    | ecommerce_dw.ingestion | Extracted order_items: 24994 record(s) from order_items.csv (1630201 bytes)
+2026-11-11 10:38:21,969 | INFO    | ecommerce_dw.metrics | Stage 'extract' finished in 0.116s
+2026-11-11 10:38:22,450 | INFO    | ecommerce_dw.validation | Validated customers: input=1000 valid=1000 rejected=0 
+2026-11-11 10:38:22,450 | INFO    | ecommerce_dw.validation | Validated products: input=200 valid=200 rejected=0 
+2026-11-11 10:38:22,450 | INFO    | ecommerce_dw.validation | Validated orders: input=10000 valid=10000 rejected=0 
+2026-11-11 10:38:22,450 | INFO    | ecommerce_dw.validation | Validated order_items: input=24994 valid=24994 rejected=0 
+2026-11-11 10:38:22,450 | INFO    | ecommerce_dw.metrics | Stage 'validate' finished in 0.482s
+2026-11-11 10:38:23,104 | INFO    | ecommerce_dw.loading | Landed raw records {'raw_customers': 1000, 'raw_products': 200, 'raw_orders': 10000, 'raw_order_items': 24994} and 0 quarantined record(s)
+2026-11-11 10:38:23,106 | INFO    | ecommerce_dw.metrics | Stage 'land_raw_and_quarantine' finished in 0.655s
+2026-11-11 10:38:23,411 | INFO    | ecommerce_dw.metrics | Stage 'transform' finished in 0.305s
+2026-11-11 10:38:24,561 | INFO    | ecommerce_dw.metrics | Stage 'load_source' finished in 1.144s
+2026-11-11 10:38:24,618 | INFO    | ecommerce_dw.loading | dim_customer: new=1000 new_versions(SCD2)=0 type1_updates=0 stale_ignored=0
+2026-11-11 10:38:24,682 | INFO    | ecommerce_dw.loading | dim_product: new=200 new_versions(SCD2)=0 type1_updates=0 stale_ignored=0
+2026-11-11 10:38:24,682 | INFO    | ecommerce_dw.metrics | Stage 'load_dimensions' finished in 0.120s
+2026-11-11 10:38:24,793 | INFO    | ecommerce_dw.metrics | Stage 'transform_facts' finished in 0.111s
+2026-11-11 10:38:24,853 | INFO    | ecommerce_dw.metrics | Stage 'load_dim_date' finished in 0.060s
+2026-11-11 10:38:24,968 | INFO    | ecommerce_dw.metrics | Stage 'resolve_keys' finished in 0.115s
+2026-11-11 10:38:25,918 | INFO    | ecommerce_dw.loading | fact_sales: inserted=24994 updated=0 unchanged=0
+2026-11-11 10:38:25,918 | INFO    | ecommerce_dw.metrics | Stage 'load_facts' finished in 0.950s
+2026-11-11 10:38:25,926 | INFO    | ecommerce_dw.metrics | Stage 'load_warehouse' finished in 2.514s
+2026-11-11 10:38:26,485 | INFO    | ecommerce_dw.reconciliation | Reconciliation for run_20261111T050821Z_0a83d7c9: PASSED (21 checks, 0 failed)
+2026-11-11 10:38:26,485 | INFO    | ecommerce_dw.metrics | Stage 'reconcile' finished in 0.463s
+2026-11-11 10:38:26,583 | INFO    | ecommerce_dw.pipeline | Pipeline run_20261111T050821Z_0a83d7c9 finished with status SUCCESS in 4.684s
+2026-11-11 10:38:26,593 | INFO    | ecommerce_dw.pipeline | 
+================================================================
+Pipeline Execution Summary
+================================================================
+Run ID              : run_20261111T050821Z_0a83d7c9
+Status              : SUCCESS
+Source              : D:\data wearhouse\ecommerce-data-warehouse\data\raw
+Input Records       : 36,194
+Valid Records       : 36,194
+Rejected Records    : 0
+Inserted Fact Rows  : 24,994
+Updated Fact Rows   : 0
+Unchanged Fact Rows : 0
+Execution Time      : 4.684s
+Reconciliation      : PASSED
+
+Entity           Input     Valid  Rejected   Skipped
+customers        1,000     1,000         0         0
+products           200       200         0         0
+orders          10,000    10,000         0         0
+order_items     24,994    24,994         0         0
+
+Stage timings (s): extract=0.116, validate=0.482, land_raw_and_quarantine=0.655, transform=0.305, load_source=1.144, load_dimensions=0.120, transform_facts=0.111, load_dim_date=0.060, resolve_keys=0.115, load_facts=0.950, load_warehouse=2.514, reconcile=0.463
+================================================================
+Reconciliation report: D:\data wearhouse\ecommerce-data-warehouse\reports\reconciliation_report.csv
+
+==============================================================================
+ 6. Pipeline: same dataset again (idempotency - expect 0 inserted)
+==============================================================================
+2026-11-11 10:38:28,174 | INFO    | ecommerce_dw.pipeline | Pipeline run_20261111T050828Z_787f7e26 started for D:\data wearhouse\ecommerce-data-warehouse\data\raw (batch_size=5000)
+2026-11-11 10:38:28,212 | INFO    | ecommerce_dw.ingestion | Extracted customers: 1000 record(s) from customers.csv (117389 bytes)
+2026-11-11 10:38:28,215 | INFO    | ecommerce_dw.ingestion | Extracted products: 200 record(s) from products.csv (20483 bytes)
+2026-11-11 10:38:28,256 | INFO    | ecommerce_dw.ingestion | Extracted orders: 10000 record(s) from orders.csv (776875 bytes)
+2026-11-11 10:38:28,292 | INFO    | ecommerce_dw.ingestion | Extracted order_items: 24994 record(s) from order_items.csv (1630201 bytes)
+2026-11-11 10:38:28,294 | INFO    | ecommerce_dw.metrics | Stage 'extract' finished in 0.090s
+2026-11-11 10:38:28,722 | INFO    | ecommerce_dw.validation | Validated customers: input=1000 valid=1000 rejected=0 
+2026-11-11 10:38:28,722 | INFO    | ecommerce_dw.validation | Validated products: input=200 valid=200 rejected=0 
+2026-11-11 10:38:28,722 | INFO    | ecommerce_dw.validation | Validated orders: input=10000 valid=10000 rejected=0 
+2026-11-11 10:38:28,722 | INFO    | ecommerce_dw.validation | Validated order_items: input=24994 valid=24994 rejected=0 
+2026-11-11 10:38:28,722 | INFO    | ecommerce_dw.metrics | Stage 'validate' finished in 0.428s
+2026-11-11 10:38:29,308 | INFO    | ecommerce_dw.loading | Landed raw records {'raw_customers': 1000, 'raw_products': 200, 'raw_orders': 10000, 'raw_order_items': 24994} and 0 quarantined record(s)
+2026-11-11 10:38:29,313 | INFO    | ecommerce_dw.metrics | Stage 'land_raw_and_quarantine' finished in 0.591s
+2026-11-11 10:38:29,515 | INFO    | ecommerce_dw.metrics | Stage 'transform' finished in 0.201s
+2026-11-11 10:38:30,069 | INFO    | ecommerce_dw.metrics | Stage 'load_source' finished in 0.551s
+2026-11-11 10:38:30,095 | INFO    | ecommerce_dw.loading | dim_customer: new=0 new_versions(SCD2)=0 type1_updates=0 stale_ignored=0
+2026-11-11 10:38:30,154 | INFO    | ecommerce_dw.loading | dim_product: new=0 new_versions(SCD2)=0 type1_updates=0 stale_ignored=0
+2026-11-11 10:38:30,154 | INFO    | ecommerce_dw.metrics | Stage 'load_dimensions' finished in 0.085s
+2026-11-11 10:38:30,334 | INFO    | ecommerce_dw.metrics | Stage 'transform_facts' finished in 0.180s
+2026-11-11 10:38:30,397 | INFO    | ecommerce_dw.metrics | Stage 'load_dim_date' finished in 0.062s
+2026-11-11 10:38:30,539 | INFO    | ecommerce_dw.metrics | Stage 'resolve_keys' finished in 0.142s
+2026-11-11 10:38:31,047 | INFO    | ecommerce_dw.loading | fact_sales: inserted=0 updated=0 unchanged=24994
+2026-11-11 10:38:31,048 | INFO    | ecommerce_dw.metrics | Stage 'load_facts' finished in 0.509s
+2026-11-11 10:38:31,062 | INFO    | ecommerce_dw.metrics | Stage 'load_warehouse' finished in 1.547s
+2026-11-11 10:38:31,669 | INFO    | ecommerce_dw.reconciliation | Reconciliation for run_20261111T050828Z_787f7e26: PASSED (21 checks, 0 failed)
+2026-11-11 10:38:31,669 | INFO    | ecommerce_dw.metrics | Stage 'reconcile' finished in 0.513s
+2026-11-11 10:38:31,774 | INFO    | ecommerce_dw.pipeline | Pipeline run_20261111T050828Z_787f7e26 finished with status SUCCESS in 3.495s
+2026-11-11 10:38:31,782 | INFO    | ecommerce_dw.pipeline | 
+================================================================
+Pipeline Execution Summary
+================================================================
+Run ID              : run_20261111T050828Z_787f7e26
+Status              : SUCCESS
+Source              : D:\data wearhouse\ecommerce-data-warehouse\data\raw
+Input Records       : 36,194
+Valid Records       : 36,194
+Rejected Records    : 0
+Inserted Fact Rows  : 0
+Updated Fact Rows   : 0
+Unchanged Fact Rows : 24,994
+Execution Time      : 3.495s
+Reconciliation      : PASSED
+
+Entity           Input     Valid  Rejected   Skipped
+customers        1,000     1,000         0         0
+products           200       200         0         0
+orders          10,000    10,000         0         0
+order_items     24,994    24,994         0         0
+
+Stage timings (s): extract=0.090, validate=0.428, land_raw_and_quarantine=0.591, transform=0.201, load_source=0.551, load_dimensions=0.085, transform_facts=0.180, load_dim_date=0.062, resolve_keys=0.142, load_facts=0.509, load_warehouse=1.547, reconcile=0.513
+================================================================
+Reconciliation report: D:\data wearhouse\ecommerce-data-warehouse\reports\reconciliation_report.csv
+
+==============================================================================
+ 7. Pipeline: invalid dataset (quarantine demo, own id namespace)
+==============================================================================
+2026-11-11 10:38:33,533 | INFO    | ecommerce_dw.pipeline | Pipeline run_20261111T050833Z_1d25f9c4 started for D:\data wearhouse\ecommerce-data-warehouse\data\invalid (batch_size=5000)
+2026-11-11 10:38:33,570 | INFO    | ecommerce_dw.ingestion | Extracted customers: 36 record(s) from customers.csv (4358 bytes)
+2026-11-11 10:38:33,572 | INFO    | ecommerce_dw.ingestion | Extracted products: 18 record(s) from products.csv (1894 bytes)
+2026-11-11 10:38:33,574 | INFO    | ecommerce_dw.ingestion | Extracted orders: 28 record(s) from orders.csv (2292 bytes)
+2026-11-11 10:38:33,575 | WARNING | ecommerce_dw.ingestion | order_items: 1 malformed row(s) (wrong field count) in order_items.csv - will be quarantined
+2026-11-11 10:38:33,576 | INFO    | ecommerce_dw.ingestion | Extracted order_items: 73 record(s) from order_items.csv (5032 bytes)
+2026-11-11 10:38:33,577 | INFO    | ecommerce_dw.metrics | Stage 'extract' finished in 0.013s
+2026-11-11 10:38:33,642 | WARNING | ecommerce_dw.validation | Validated customers: input=36 valid=30 rejected=6 {'CONFLICTING_DUPLICATE': 2, 'EXACT_DUPLICATE': 1, 'INVALID_EMAIL': 1, 'INVALID_TIMESTAMP': 1, 'MISSING_REQUIRED_FIELD': 1}
+2026-11-11 10:38:33,642 | WARNING | ecommerce_dw.validation | Validated products: input=18 valid=15 rejected=3 {'INVALID_NUMBER': 1, 'MISSING_REQUIRED_FIELD': 1, 'NEGATIVE_VALUE': 1}
+2026-11-11 10:38:33,643 | WARNING | ecommerce_dw.validation | Validated orders: input=28 valid=25 rejected=3 {'INVALID_ALLOWED_VALUE': 1, 'INVALID_TIMESTAMP': 1, 'UNKNOWN_CUSTOMER_REFERENCE': 1}
+2026-11-11 10:38:33,643 | WARNING | ecommerce_dw.validation | Validated order_items: input=73 valid=60 rejected=13 {'CONFLICTING_DUPLICATE': 2, 'EXACT_DUPLICATE': 1, 'EXCESSIVE_DISCOUNT': 2, 'INVALID_NUMBER': 1, 'MALFORMED_ROW': 1, 'NEGATIVE_VALUE': 2, 'NON_POSITIVE_QUANTITY': 2, 'UNKNOWN_ORDER_REFERENCE': 2, 'UNKNOWN_PRODUCT_REFERENCE': 1}
+2026-11-11 10:38:33,643 | INFO    | ecommerce_dw.metrics | Stage 'validate' finished in 0.067s
+2026-11-11 10:38:33,772 | INFO    | ecommerce_dw.loading | Landed raw records {'raw_customers': 36, 'raw_products': 18, 'raw_orders': 28, 'raw_order_items': 73} and 25 quarantined record(s)
+2026-11-11 10:38:33,772 | INFO    | ecommerce_dw.metrics | Stage 'land_raw_and_quarantine' finished in 0.129s
+2026-11-11 10:38:33,797 | INFO    | ecommerce_dw.metrics | Stage 'transform' finished in 0.024s
+2026-11-11 10:38:33,842 | INFO    | ecommerce_dw.metrics | Stage 'load_source' finished in 0.040s
+2026-11-11 10:38:33,860 | INFO    | ecommerce_dw.loading | dim_customer: new=30 new_versions(SCD2)=0 type1_updates=0 stale_ignored=0
+2026-11-11 10:38:33,877 | INFO    | ecommerce_dw.loading | dim_product: new=15 new_versions(SCD2)=0 type1_updates=0 stale_ignored=0
+2026-11-11 10:38:33,877 | INFO    | ecommerce_dw.metrics | Stage 'load_dimensions' finished in 0.035s
+2026-11-11 10:38:33,885 | INFO    | ecommerce_dw.metrics | Stage 'transform_facts' finished in 0.009s
+2026-11-11 10:38:33,952 | INFO    | ecommerce_dw.metrics | Stage 'load_dim_date' finished in 0.066s
+2026-11-11 10:38:33,980 | INFO    | ecommerce_dw.metrics | Stage 'resolve_keys' finished in 0.027s
+2026-11-11 10:38:33,990 | INFO    | ecommerce_dw.loading | fact_sales: inserted=60 updated=0 unchanged=0
+2026-11-11 10:38:33,991 | INFO    | ecommerce_dw.metrics | Stage 'load_facts' finished in 0.011s
+2026-11-11 10:38:33,998 | INFO    | ecommerce_dw.metrics | Stage 'load_warehouse' finished in 0.200s
+2026-11-11 10:38:34,302 | INFO    | ecommerce_dw.reconciliation | Reconciliation for run_20261111T050833Z_1d25f9c4: PASSED (21 checks, 0 failed)
+2026-11-11 10:38:34,302 | INFO    | ecommerce_dw.metrics | Stage 'reconcile' finished in 0.210s
+2026-11-11 10:38:34,403 | INFO    | ecommerce_dw.pipeline | Pipeline run_20261111T050833Z_1d25f9c4 finished with status SUCCESS in 0.768s
+2026-11-11 10:38:34,403 | INFO    | ecommerce_dw.pipeline | 
+================================================================
+Pipeline Execution Summary
+================================================================
+Run ID              : run_20261111T050833Z_1d25f9c4
+Status              : SUCCESS
+Source              : D:\data wearhouse\ecommerce-data-warehouse\data\invalid
+Input Records       : 155
+Valid Records       : 130
+Rejected Records    : 25
+Inserted Fact Rows  : 60
+Updated Fact Rows   : 0
+Unchanged Fact Rows : 0
+Execution Time      : 0.768s
+Reconciliation      : PASSED
+
+Entity           Input     Valid  Rejected   Skipped
+customers           36        30         6         0
+products            18        15         3         0
+orders              28        25         3         0
+order_items         73        60        13         0
+
+Stage timings (s): extract=0.013, validate=0.067, land_raw_and_quarantine=0.129, transform=0.024, load_source=0.040, load_dimensions=0.035, transform_facts=0.009, load_dim_date=0.066, resolve_keys=0.027, load_facts=0.011, load_warehouse=0.200, reconcile=0.210
+================================================================
+Reconciliation report: D:\data wearhouse\ecommerce-data-warehouse\reports\reconciliation_report.csv
+
+==============================================================================
+ 8. Pipeline: intermediate dataset again (latest run reconciles the main load)
+==============================================================================
+2026-11-11 10:38:36,379 | INFO    | ecommerce_dw.pipeline | Pipeline run_20261111T050836Z_57ffae4e started for D:\data wearhouse\ecommerce-data-warehouse\data\raw (batch_size=5000)
+2026-11-11 10:38:36,427 | INFO    | ecommerce_dw.ingestion | Extracted customers: 1000 record(s) from customers.csv (117389 bytes)
+2026-11-11 10:38:36,430 | INFO    | ecommerce_dw.ingestion | Extracted products: 200 record(s) from products.csv (20483 bytes)
+2026-11-11 10:38:36,473 | INFO    | ecommerce_dw.ingestion | Extracted orders: 10000 record(s) from orders.csv (776875 bytes)
+2026-11-11 10:38:36,512 | INFO    | ecommerce_dw.ingestion | Extracted order_items: 24994 record(s) from order_items.csv (1630201 bytes)
+2026-11-11 10:38:36,514 | INFO    | ecommerce_dw.metrics | Stage 'extract' finished in 0.096s
+2026-11-11 10:38:36,963 | INFO    | ecommerce_dw.validation | Validated customers: input=1000 valid=1000 rejected=0 
+2026-11-11 10:38:36,963 | INFO    | ecommerce_dw.validation | Validated products: input=200 valid=200 rejected=0 
+2026-11-11 10:38:36,963 | INFO    | ecommerce_dw.validation | Validated orders: input=10000 valid=10000 rejected=0 
+2026-11-11 10:38:36,963 | INFO    | ecommerce_dw.validation | Validated order_items: input=24994 valid=24994 rejected=0 
+2026-11-11 10:38:36,963 | INFO    | ecommerce_dw.metrics | Stage 'validate' finished in 0.449s
+2026-11-11 10:38:37,703 | INFO    | ecommerce_dw.loading | Landed raw records {'raw_customers': 1000, 'raw_products': 200, 'raw_orders': 10000, 'raw_order_items': 24994} and 0 quarantined record(s)
+2026-11-11 10:38:37,705 | INFO    | ecommerce_dw.metrics | Stage 'land_raw_and_quarantine' finished in 0.742s
+2026-11-11 10:38:38,041 | INFO    | ecommerce_dw.metrics | Stage 'transform' finished in 0.336s
+2026-11-11 10:38:38,677 | INFO    | ecommerce_dw.metrics | Stage 'load_source' finished in 0.631s
+2026-11-11 10:38:38,703 | INFO    | ecommerce_dw.loading | dim_customer: new=0 new_versions(SCD2)=0 type1_updates=0 stale_ignored=0
+2026-11-11 10:38:38,766 | INFO    | ecommerce_dw.loading | dim_product: new=0 new_versions(SCD2)=0 type1_updates=0 stale_ignored=0
+2026-11-11 10:38:38,767 | INFO    | ecommerce_dw.metrics | Stage 'load_dimensions' finished in 0.089s
+2026-11-11 10:38:38,965 | INFO    | ecommerce_dw.metrics | Stage 'transform_facts' finished in 0.198s
+2026-11-11 10:38:39,033 | INFO    | ecommerce_dw.metrics | Stage 'load_dim_date' finished in 0.068s
+2026-11-11 10:38:39,198 | INFO    | ecommerce_dw.metrics | Stage 'resolve_keys' finished in 0.165s
+2026-11-11 10:38:39,677 | INFO    | ecommerce_dw.loading | fact_sales: inserted=0 updated=0 unchanged=24994
+2026-11-11 10:38:39,677 | INFO    | ecommerce_dw.metrics | Stage 'load_facts' finished in 0.479s
+2026-11-11 10:38:39,691 | INFO    | ecommerce_dw.metrics | Stage 'load_warehouse' finished in 1.649s
+2026-11-11 10:38:40,293 | INFO    | ecommerce_dw.reconciliation | Reconciliation for run_20261111T050836Z_57ffae4e: PASSED (21 checks, 0 failed)
+2026-11-11 10:38:40,293 | INFO    | ecommerce_dw.metrics | Stage 'reconcile' finished in 0.509s
+2026-11-11 10:38:40,399 | INFO    | ecommerce_dw.pipeline | Pipeline run_20261111T050836Z_57ffae4e finished with status SUCCESS in 3.913s
+2026-11-11 10:38:40,409 | INFO    | ecommerce_dw.pipeline | 
+================================================================
+Pipeline Execution Summary
+================================================================
+Run ID              : run_20261111T050836Z_57ffae4e
+Status              : SUCCESS
+Source              : D:\data wearhouse\ecommerce-data-warehouse\data\raw
+Input Records       : 36,194
+Valid Records       : 36,194
+Rejected Records    : 0
+Inserted Fact Rows  : 0
+Updated Fact Rows   : 0
+Unchanged Fact Rows : 24,994
+Execution Time      : 3.913s
+Reconciliation      : PASSED
+
+Entity           Input     Valid  Rejected   Skipped
+customers        1,000     1,000         0         0
+products           200       200         0         0
+orders          10,000    10,000         0         0
+order_items     24,994    24,994         0         0
+
+Stage timings (s): extract=0.096, validate=0.449, land_raw_and_quarantine=0.742, transform=0.336, load_source=0.631, load_dimensions=0.089, transform_facts=0.198, load_dim_date=0.068, resolve_keys=0.165, load_facts=0.479, load_warehouse=1.649, reconcile=0.509
+================================================================
+Reconciliation report: D:\data wearhouse\ecommerce-data-warehouse\reports\reconciliation_report.csv
+
+==============================================================================
+ 9. Reconciliation of the latest run
+==============================================================================
+2026-11-11 10:38:42,769 | INFO    | ecommerce_dw.reconciliation | Reconciliation for run_20261111T050836Z_57ffae4e: PASSED (21 checks, 0 failed)
+
+================================================================================================
+Reconciliation Report - run run_20261111T050836Z_57ffae4e
+================================================================================================
+Status Sev      Check                                                        Source      Target
+------------------------------------------------------------------------------------------------
+PASS   CRITICAL customers: input = valid + rejected + skipped                  1000        1000
+PASS   CRITICAL customers: rejected rows = quarantine rows                        0           0
+PASS   CRITICAL products: input = valid + rejected + skipped                    200         200
+PASS   CRITICAL products: rejected rows = quarantine rows                         0           0
+PASS   CRITICAL orders: input = valid + rejected + skipped                    10000       10000
+PASS   CRITICAL orders: rejected rows = quarantine rows                           0           0
+PASS   CRITICAL order_items: input = valid + rejected + skipped               24994       24994
+PASS   CRITICAL order_items: rejected rows = quarantine rows                      0           0
+INFO   INFO     order_items: source record count                              24994       24994
+INFO   INFO     order_items: rejected record count                                0           0
+PASS   CRITICAL valid source order items = fact rows present                  24994       24994
+PASS   CRITICAL total gross sales (valid source vs fact)                171084686.4 171084686.4
+PASS   CRITICAL total discounts (valid source vs fact)                   8872329.05  8872329.05
+PASS   CRITICAL total net revenue (valid source vs fact)                162212357.4 162212357.4
+INFO   INFO     duplicate records quarantined (all entities)                      0           0
+INFO   INFO     fact rows inserted / updated / unchanged                0 / 0 / 249 0 / 0 / 249
+PASS   CRITICAL missing dimension references                                      0           0
+PASS   CRITICAL facts linked to wrong dimension version / date                    0           0
+PASS   CRITICAL warehouse total: source order items = fact rows               25054       25054
+PASS   CRITICAL warehouse total: source net revenue = fact net revenue  162314314.8 162314314.8
+PASS   CRITICAL business keys with more than one current version                  0           0
+------------------------------------------------------------------------------------------------
+OVERALL: PASSED - source and target reconcile
+================================================================================================
+Report: D:\data wearhouse\ecommerce-data-warehouse\reports\reconciliation_report.csv
+
+==============================================================================
+ 10. Analytical queries
+==============================================================================
+
+### total_revenue (1 row(s))
+ orders  order_lines  units_sold  gross_sales  discounts  net_revenue
+   8674        21687       32603 147645473.97 7654330.27 139991143.70
+
+### monthly_revenue (36 row(s))
+ year  month month_name  orders net_revenue mom_growth_pct
+ 2023      1    January     155  2524704.95           None
+ 2023      2   February     175  2579150.56           2.16
+ 2023      3      March     195  2539738.72          -1.53
+ 2023      4      April     178  2499720.98          -1.58
+ 2023      5        May     196  2963759.35          18.56
+ 2023      6       June     174  2959005.46          -0.16
+ 2023      7       July     203  3631796.10          22.74
+ 2023      8     August     219  3533745.81          -2.70
+ 2023      9  September     214  3914175.51          10.77
+ 2023     10    October     296  4275235.97           9.22
+
+### yearly_revenue (3 row(s))
+ year  orders  units_sold net_revenue yoy_growth_pct
+ 2023    2568        9598 40899960.33           None
+ 2024    2982       11282 48010520.64          17.39
+ 2025    3124       11723 51080662.73           6.39
+
+### top_10_products (10 row(s))
+product_id                       product_name               category  units_sold  orders net_revenue
+   P000190        Himalaya Herbal Shampoo Max Beauty & Personal Care        1315     814   270959.45
+   P000072                  Arihant Novel Max                  Books        1190     763   354907.55
+   P000122      Scholastic Exam Guide Classic                  Books        1015     665  1285290.96
+   P000152              boAt LED Monitor Plus            Electronics         902     574  4167890.95
+   P000087          Adidas Winter Jacket Plus                Fashion         756     513  4241324.53
+   P000102 Arihant Children's Story Book Lite                  Books         677     459   417699.65
+   P000007 Penguin Children's Story Book Plus                  Books         640     424   165874.80
+   P000173          Bajaj Mixer Grinder Prime         Home & Kitchen         621     391  5039676.89
+   P000170         Cosco Cycling Helmet Prime       Sports & Fitness         616     391  4586926.67
+   P000114               Nivea Sunscreen Plus Beauty & Personal Care         590     376  1279263.45
+
+### category_revenue (7 row(s))
+              category  orders  units_sold net_revenue revenue_share_pct
+           Electronics    2375        4100 82302942.42             58.79
+        Home & Kitchen    2361        4048 25009798.00             17.87
+      Sports & Fitness    2942        5201 14168403.67             10.12
+               Fashion    1907        3198  6897535.93              4.93
+Beauty & Personal Care    3125        5565  5279592.87              3.77
+                 Books    3561        6563  3329315.65              2.38
+               Grocery    2294        3928  3003555.16              2.15
+
+### city_revenue (25 row(s))
+         city          state  customers  orders net_revenue
+    Bengaluru      Karnataka         81     876 14765546.02
+       Mumbai    Maharashtra         66     769 11938734.93
+      Chennai     Tamil Nadu         63     668 11184356.84
+    New Delhi          Delhi         76     728 11148284.85
+         Pune    Maharashtra         55     587  9846384.55
+    Hyderabad      Telangana         68     524  7836442.94
+      Kolkata    West Bengal         59     487  7572703.33
+    Ahmedabad        Gujarat         42     385  6329922.74
+      Lucknow  Uttar Pradesh         36     354  6226576.24
+Visakhapatnam Andhra Pradesh         28     346  6023316.11
+
+### top_10_customers (10 row(s))
+customer_id       customer_name  current_city  orders total_spent
+   C0000067        Vrishti Tank       Chennai      58  1197026.69
+   C0000251     Chandresh Devan     New Delhi      40   968104.36
+   C0000106     Sudiksha Cheema    Vijayawada      52   948997.96
+   C0000304         Vinaya Sule     Bengaluru      69   943955.93
+   C0000442         Faras Manne        Mumbai      40   899004.24
+   C0000850     Nidhi Chaudhari Visakhapatnam      32   864306.61
+   C0000827 Pooja Bhattacharyya          Pune      43   857542.64
+   C0000666        Qabil Karnik        Nagpur      63   847996.64
+   C0000248        Imaran Lanka     Bengaluru      40   846541.58
+   C0000181    Yadavi Natarajan Visakhapatnam      64   841849.31
+
+### average_order_value (1 row(s))
+ orders average_order_value min_order_value max_order_value median_order_value
+   8674            16139.17           74.25       311982.15            5915.12
+
+### total_quantity_sold (8 row(s))
+              category  units_sold
+        ALL CATEGORIES       32603
+                 Books        6563
+Beauty & Personal Care        5565
+      Sports & Fitness        5201
+           Electronics        4100
+        Home & Kitchen        4048
+               Grocery        3928
+               Fashion        3198
+
+### order_status_analysis (5 row(s))
+order_status  orders pct_of_orders units  order_value
+   DELIVERED    6948         69.31 26197 112326959.61
+     SHIPPED    1028         10.25  3840  16778924.61
+   CANCELLED     830          8.28  3062  13276015.14
+      PLACED     698          6.96  2566  10885259.48
+    RETURNED     521          5.20  2010   9047156.00
+
+### revenue_by_payment_method (6 row(s))
+  payment_method  orders net_revenue average_order_value revenue_share_pct
+             UPI    3402 54777587.89            16101.58             39.13
+     CREDIT_CARD    1620 24087938.88            14869.10             17.21
+      DEBIT_CARD    1242 22033724.51            17740.52             15.74
+CASH_ON_DELIVERY    1277 20674777.78            16190.12             14.77
+     NET_BANKING     615 10555471.37            17163.37              7.54
+          WALLET     518  7861643.27            15176.92              5.62
+
+### historical_customer_sales (0 row(s))
+(no rows)
+
+### customer_purchase_behaviour (4 row(s))
+   segment  customers orders  net_revenue avg_spend_per_customer
+   1 order        112    112   1468919.45               13115.35
+2-3 orders        134    331   5814771.99               43393.82
+4-9 orders        312   1927  31366157.99              100532.56
+10+ orders        322   6304 101341294.27              314724.52
+
+==============================================================================
+ 11. Pipeline run history
+==============================================================================
+                       run_id  status                       start_time execution_duration_seconds  input_count  valid_count  rejected_count  inserted_count  updated_count error_message
+run_20261111T050836Z_57ffae4e SUCCESS 2026-11-11 05:08:36.380504+00:00                      3.913        36194        36194               0               0              0          None
+run_20261111T050833Z_1d25f9c4 SUCCESS 2026-11-11 05:08:33.535187+00:00                      0.768          155          130              25              60              0          None
+run_20261111T050828Z_787f7e26 SUCCESS 2026-11-11 05:08:28.174787+00:00                      3.495        36194        36194               0               0              0          None
+run_20261111T050821Z_0a83d7c9 SUCCESS 2026-11-11 05:08:21.801983+00:00                      4.684        36194        36194               0           24994              0          None
+
+==============================================================================
+ 12. SCD2 / late-arriving / missing-reference scenarios
+==============================================================================
+2026-11-11 10:38:48,370 | WARNING | ecommerce_dw.database | Dropped schemas: raw, source, dw, ops
+2026-11-11 10:38:48,384 | INFO    | ecommerce_dw.database | Applied source_schema.sql
+2026-11-11 10:38:48,400 | INFO    | ecommerce_dw.database | Applied warehouse_schema.sql
+2026-11-11 10:38:48,405 | INFO    | ecommerce_dw.database | Applied indexes.sql
+2026-11-11 10:38:48,423 | INFO    | ecommerce_dw.pipeline | Pipeline run_20261111T050848Z_58796fc4 started for D:\data wearhouse\ecommerce-data-warehouse\data\generated\scenarios\batch1_initial (batch_size=5000)
+2026-11-11 10:38:48,438 | INFO    | ecommerce_dw.ingestion | Extracted customers: 2 record(s) from customers.csv (278 bytes)
+2026-11-11 10:38:48,441 | INFO    | ecommerce_dw.ingestion | Extracted products: 2 record(s) from products.csv (243 bytes)
+2026-11-11 10:38:48,444 | INFO    | ecommerce_dw.ingestion | Extracted orders: 2 record(s) from orders.csv (191 bytes)
+2026-11-11 10:38:48,446 | INFO    | ecommerce_dw.ingestion | Extracted order_items: 2 record(s) from order_items.csv (172 bytes)
+2026-11-11 10:38:48,447 | INFO    | ecommerce_dw.metrics | Stage 'extract' finished in 0.016s
+2026-11-11 10:38:48,492 | INFO    | ecommerce_dw.validation | Validated customers: input=2 valid=2 rejected=0 
+2026-11-11 10:38:48,493 | INFO    | ecommerce_dw.validation | Validated products: input=2 valid=2 rejected=0 
+2026-11-11 10:38:48,493 | INFO    | ecommerce_dw.validation | Validated orders: input=2 valid=2 rejected=0 
+2026-11-11 10:38:48,493 | INFO    | ecommerce_dw.validation | Validated order_items: input=2 valid=2 rejected=0 
+2026-11-11 10:38:48,493 | INFO    | ecommerce_dw.metrics | Stage 'validate' finished in 0.046s
+2026-11-11 10:38:48,549 | INFO    | ecommerce_dw.loading | Landed raw records {'raw_customers': 2, 'raw_products': 2, 'raw_orders': 2, 'raw_order_items': 2} and 0 quarantined record(s)
+2026-11-11 10:38:48,549 | INFO    | ecommerce_dw.metrics | Stage 'land_raw_and_quarantine' finished in 0.056s
+2026-11-11 10:38:48,574 | INFO    | ecommerce_dw.metrics | Stage 'transform' finished in 0.025s
+2026-11-11 10:38:48,614 | INFO    | ecommerce_dw.metrics | Stage 'load_source' finished in 0.036s
+2026-11-11 10:38:48,638 | INFO    | ecommerce_dw.loading | dim_customer: new=2 new_versions(SCD2)=0 type1_updates=0 stale_ignored=0
+2026-11-11 10:38:48,659 | INFO    | ecommerce_dw.loading | dim_product: new=2 new_versions(SCD2)=0 type1_updates=0 stale_ignored=0
+2026-11-11 10:38:48,659 | INFO    | ecommerce_dw.metrics | Stage 'load_dimensions' finished in 0.045s
+2026-11-11 10:38:48,672 | INFO    | ecommerce_dw.metrics | Stage 'transform_facts' finished in 0.012s
+2026-11-11 10:38:48,734 | INFO    | ecommerce_dw.metrics | Stage 'load_dim_date' finished in 0.062s
+2026-11-11 10:38:48,759 | INFO    | ecommerce_dw.metrics | Stage 'resolve_keys' finished in 0.025s
+2026-11-11 10:38:48,772 | INFO    | ecommerce_dw.loading | fact_sales: inserted=2 updated=0 unchanged=0
+2026-11-11 10:38:48,773 | INFO    | ecommerce_dw.metrics | Stage 'load_facts' finished in 0.012s
+2026-11-11 10:38:48,778 | INFO    | ecommerce_dw.metrics | Stage 'load_warehouse' finished in 0.203s
+2026-11-11 10:38:48,915 | INFO    | ecommerce_dw.reconciliation | Reconciliation for run_20261111T050848Z_58796fc4: PASSED (21 checks, 0 failed)
+2026-11-11 10:38:48,915 | INFO    | ecommerce_dw.metrics | Stage 'reconcile' finished in 0.039s
+2026-11-11 10:38:49,016 | INFO    | ecommerce_dw.pipeline | Pipeline run_20261111T050848Z_58796fc4 finished with status SUCCESS in 0.492s
+2026-11-11 10:38:49,017 | INFO    | ecommerce_dw.pipeline | Pipeline run_20261111T050849Z_41b92c9c started for D:\data wearhouse\ecommerce-data-warehouse\data\generated\scenarios\batch2_customer_moves (batch_size=5000)
+2026-11-11 10:38:49,025 | INFO    | ecommerce_dw.ingestion | Extracted customers: 1 record(s) from customers.csv (178 bytes)
+2026-11-11 10:38:49,029 | INFO    | ecommerce_dw.ingestion | Extracted products: 0 record(s) from products.csv (72 bytes)
+2026-11-11 10:38:49,032 | INFO    | ecommerce_dw.ingestion | Extracted orders: 1 record(s) from orders.csv (131 bytes)
+2026-11-11 10:38:49,034 | INFO    | ecommerce_dw.ingestion | Extracted order_items: 1 record(s) from order_items.csv (127 bytes)
+2026-11-11 10:38:49,034 | INFO    | ecommerce_dw.metrics | Stage 'extract' finished in 0.012s
+2026-11-11 10:38:49,083 | INFO    | ecommerce_dw.validation | Validated customers: input=1 valid=1 rejected=0 
+2026-11-11 10:38:49,083 | INFO    | ecommerce_dw.validation | Validated products: input=0 valid=0 rejected=0 
+2026-11-11 10:38:49,083 | INFO    | ecommerce_dw.validation | Validated orders: input=1 valid=1 rejected=0 
+2026-11-11 10:38:49,083 | INFO    | ecommerce_dw.validation | Validated order_items: input=1 valid=1 rejected=0 
+2026-11-11 10:38:49,083 | INFO    | ecommerce_dw.metrics | Stage 'validate' finished in 0.050s
+2026-11-11 10:38:49,174 | INFO    | ecommerce_dw.loading | Landed raw records {'raw_customers': 1, 'raw_products': 0, 'raw_orders': 1, 'raw_order_items': 1} and 0 quarantined record(s)
+2026-11-11 10:38:49,174 | INFO    | ecommerce_dw.metrics | Stage 'land_raw_and_quarantine' finished in 0.090s
+2026-11-11 10:38:49,217 | INFO    | ecommerce_dw.metrics | Stage 'transform' finished in 0.043s
+2026-11-11 10:38:49,262 | INFO    | ecommerce_dw.metrics | Stage 'load_source' finished in 0.041s
+2026-11-11 10:38:49,276 | INFO    | ecommerce_dw.loading | dim_customer: new=0 new_versions(SCD2)=1 type1_updates=0 stale_ignored=0
+2026-11-11 10:38:49,276 | INFO    | ecommerce_dw.metrics | Stage 'load_dimensions' finished in 0.014s
+2026-11-11 10:38:49,289 | INFO    | ecommerce_dw.metrics | Stage 'transform_facts' finished in 0.012s
+2026-11-11 10:38:49,349 | INFO    | ecommerce_dw.metrics | Stage 'load_dim_date' finished in 0.060s
+2026-11-11 10:38:49,364 | INFO    | ecommerce_dw.metrics | Stage 'resolve_keys' finished in 0.015s
+2026-11-11 10:38:49,372 | INFO    | ecommerce_dw.loading | fact_sales: inserted=1 updated=0 unchanged=0
+2026-11-11 10:38:49,373 | INFO    | ecommerce_dw.metrics | Stage 'load_facts' finished in 0.009s
+2026-11-11 10:38:49,377 | INFO    | ecommerce_dw.metrics | Stage 'load_warehouse' finished in 0.160s
+2026-11-11 10:38:49,509 | INFO    | ecommerce_dw.reconciliation | Reconciliation for run_20261111T050849Z_41b92c9c: PASSED (21 checks, 0 failed)
+2026-11-11 10:38:49,509 | INFO    | ecommerce_dw.metrics | Stage 'reconcile' finished in 0.034s
+2026-11-11 10:38:49,615 | INFO    | ecommerce_dw.pipeline | Pipeline run_20261111T050849Z_41b92c9c finished with status SUCCESS in 0.492s
+2026-11-11 10:38:49,615 | INFO    | ecommerce_dw.pipeline | Pipeline run_20261111T050849Z_f948cdc5 started for D:\data wearhouse\ecommerce-data-warehouse\data\generated\scenarios\batch3_late_arrivals (batch_size=5000)
+2026-11-11 10:38:49,622 | INFO    | ecommerce_dw.ingestion | Extracted customers: 0 record(s) from customers.csv (80 bytes)
+2026-11-11 10:38:49,624 | INFO    | ecommerce_dw.ingestion | Extracted products: 1 record(s) from products.csv (152 bytes)
+2026-11-11 10:38:49,626 | INFO    | ecommerce_dw.ingestion | Extracted orders: 2 record(s) from orders.csv (191 bytes)
+2026-11-11 10:38:49,629 | INFO    | ecommerce_dw.ingestion | Extracted order_items: 2 record(s) from order_items.csv (171 bytes)
+2026-11-11 10:38:49,629 | INFO    | ecommerce_dw.metrics | Stage 'extract' finished in 0.011s
+2026-11-11 10:38:49,672 | INFO    | ecommerce_dw.validation | Validated customers: input=0 valid=0 rejected=0 
+2026-11-11 10:38:49,673 | INFO    | ecommerce_dw.validation | Validated products: input=1 valid=1 rejected=0 
+2026-11-11 10:38:49,673 | INFO    | ecommerce_dw.validation | Validated orders: input=2 valid=2 rejected=0 
+2026-11-11 10:38:49,673 | INFO    | ecommerce_dw.validation | Validated order_items: input=2 valid=2 rejected=0 
+2026-11-11 10:38:49,673 | INFO    | ecommerce_dw.metrics | Stage 'validate' finished in 0.044s
+2026-11-11 10:38:49,705 | INFO    | ecommerce_dw.loading | Landed raw records {'raw_customers': 0, 'raw_products': 1, 'raw_orders': 2, 'raw_order_items': 2} and 0 quarantined record(s)
+2026-11-11 10:38:49,705 | INFO    | ecommerce_dw.metrics | Stage 'land_raw_and_quarantine' finished in 0.032s
+2026-11-11 10:38:49,721 | INFO    | ecommerce_dw.metrics | Stage 'transform' finished in 0.016s
+2026-11-11 10:38:49,741 | INFO    | ecommerce_dw.metrics | Stage 'load_source' finished in 0.017s
+2026-11-11 10:38:49,750 | INFO    | ecommerce_dw.loading | dim_product: new=0 new_versions(SCD2)=1 type1_updates=0 stale_ignored=0
+2026-11-11 10:38:49,751 | INFO    | ecommerce_dw.metrics | Stage 'load_dimensions' finished in 0.010s
+2026-11-11 10:38:49,757 | INFO    | ecommerce_dw.metrics | Stage 'transform_facts' finished in 0.007s
+2026-11-11 10:38:49,811 | INFO    | ecommerce_dw.metrics | Stage 'load_dim_date' finished in 0.054s
+2026-11-11 10:38:49,823 | INFO    | ecommerce_dw.metrics | Stage 'resolve_keys' finished in 0.012s
+2026-11-11 10:38:49,830 | INFO    | ecommerce_dw.loading | fact_sales: inserted=1 updated=1 unchanged=0
+2026-11-11 10:38:49,832 | INFO    | ecommerce_dw.metrics | Stage 'load_facts' finished in 0.008s
+2026-11-11 10:38:49,835 | INFO    | ecommerce_dw.metrics | Stage 'load_warehouse' finished in 0.113s
+2026-11-11 10:38:49,954 | INFO    | ecommerce_dw.reconciliation | Reconciliation for run_20261111T050849Z_f948cdc5: PASSED (21 checks, 0 failed)
+2026-11-11 10:38:49,954 | INFO    | ecommerce_dw.metrics | Stage 'reconcile' finished in 0.023s
+2026-11-11 10:38:50,048 | INFO    | ecommerce_dw.pipeline | Pipeline run_20261111T050849Z_f948cdc5 finished with status SUCCESS in 0.339s
+2026-11-11 10:38:50,049 | INFO    | ecommerce_dw.pipeline | Pipeline run_20261111T050850Z_17b8ca65 started for D:\data wearhouse\ecommerce-data-warehouse\data\generated\scenarios\batch4_missing_product (batch_size=5000)
+2026-11-11 10:38:50,056 | INFO    | ecommerce_dw.ingestion | Extracted customers: 0 record(s) from customers.csv (80 bytes)
+2026-11-11 10:38:50,059 | INFO    | ecommerce_dw.ingestion | Extracted products: 0 record(s) from products.csv (72 bytes)
+2026-11-11 10:38:50,061 | INFO    | ecommerce_dw.ingestion | Extracted orders: 1 record(s) from orders.csv (131 bytes)
+2026-11-11 10:38:50,063 | INFO    | ecommerce_dw.ingestion | Extracted order_items: 2 record(s) from order_items.csv (172 bytes)
+2026-11-11 10:38:50,063 | INFO    | ecommerce_dw.metrics | Stage 'extract' finished in 0.009s
+2026-11-11 10:38:50,110 | INFO    | ecommerce_dw.validation | Validated customers: input=0 valid=0 rejected=0 
+2026-11-11 10:38:50,110 | INFO    | ecommerce_dw.validation | Validated products: input=0 valid=0 rejected=0 
+2026-11-11 10:38:50,110 | INFO    | ecommerce_dw.validation | Validated orders: input=1 valid=1 rejected=0 
+2026-11-11 10:38:50,110 | WARNING | ecommerce_dw.validation | Validated order_items: input=2 valid=1 rejected=1 {'UNKNOWN_PRODUCT_REFERENCE': 1}
+2026-11-11 10:38:50,111 | INFO    | ecommerce_dw.metrics | Stage 'validate' finished in 0.048s
+2026-11-11 10:38:50,158 | INFO    | ecommerce_dw.loading | Landed raw records {'raw_customers': 0, 'raw_products': 0, 'raw_orders': 1, 'raw_order_items': 2} and 1 quarantined record(s)
+2026-11-11 10:38:50,158 | INFO    | ecommerce_dw.metrics | Stage 'land_raw_and_quarantine' finished in 0.047s
+2026-11-11 10:38:50,184 | INFO    | ecommerce_dw.metrics | Stage 'transform' finished in 0.026s
+2026-11-11 10:38:50,216 | INFO    | ecommerce_dw.metrics | Stage 'load_source' finished in 0.028s
+2026-11-11 10:38:50,217 | INFO    | ecommerce_dw.metrics | Stage 'load_dimensions' finished in 0.000s
+2026-11-11 10:38:50,225 | INFO    | ecommerce_dw.metrics | Stage 'transform_facts' finished in 0.008s
+2026-11-11 10:38:50,280 | INFO    | ecommerce_dw.metrics | Stage 'load_dim_date' finished in 0.056s
+2026-11-11 10:38:50,301 | INFO    | ecommerce_dw.metrics | Stage 'resolve_keys' finished in 0.020s
+2026-11-11 10:38:50,312 | INFO    | ecommerce_dw.loading | fact_sales: inserted=1 updated=0 unchanged=0
+2026-11-11 10:38:50,312 | INFO    | ecommerce_dw.metrics | Stage 'load_facts' finished in 0.011s
+2026-11-11 10:38:50,317 | INFO    | ecommerce_dw.metrics | Stage 'load_warehouse' finished in 0.134s
+2026-11-11 10:38:50,453 | INFO    | ecommerce_dw.reconciliation | Reconciliation for run_20261111T050850Z_17b8ca65: PASSED (21 checks, 0 failed)
+2026-11-11 10:38:50,453 | INFO    | ecommerce_dw.metrics | Stage 'reconcile' finished in 0.044s
+2026-11-11 10:38:50,554 | INFO    | ecommerce_dw.pipeline | Pipeline run_20261111T050850Z_17b8ca65 finished with status SUCCESS in 0.404s
+Scenario demonstration (isolated database: ecommerce_dw_demo)
+==============================================================================
+
+### batch1_initial: status=SUCCESS input=8 valid=8 rejected=0 facts inserted=2 updated=0 unchanged=0 re-keyed=0
+
+### batch2_customer_moves: status=SUCCESS input=3 valid=3 rejected=0 facts inserted=1 updated=0 unchanged=0 re-keyed=0
+
+### batch3_late_arrivals: status=SUCCESS input=5 valid=5 rejected=0 facts inserted=1 updated=1 unchanged=0 re-keyed=0
+
+### batch4_missing_product: status=SUCCESS input=3 valid=2 rejected=1 facts inserted=1 updated=0 unchanged=0 re-keyed=0
+  quarantined: order_items OI5: product_id 'P999' not found among valid products
+
+dim_customer (SCD2):
+ customer_key customer_id      city      state effective_start_date effective_end_date  is_current
+            1          C1 Hyderabad  Telangana           1900-01-01         2024-06-01       False
+            3          C1   Chennai Tamil Nadu           2024-06-01         9999-12-31        True
+            2          C2 Bengaluru  Karnataka           1900-01-01         9999-12-31        True
+
+dim_product (SCD2):
+ product_key product_id    category   brand effective_start_date effective_end_date  is_current
+           1         P1 Electronics Samsung           1900-01-01         2024-05-01       False
+           3         P1     Mobiles Samsung           2024-05-01         9999-12-31        True
+           2         P2       Books Penguin           1900-01-01         9999-12-31        True
+
+fact_sales with the dimension versions they reference:
+order_item_id order_id  date_key  customer_key      city  product_key    category  quantity gross_sales discount_amount net_revenue
+          OI1       O1  20240310             1 Hyderabad            1 Electronics         2     2000.00          100.00     1900.00
+          OI2       O2  20240312             2 Bengaluru            2       Books         1      500.00            0.00      500.00
+          OI3       O3  20240715             3   Chennai            3     Mobiles         1     1000.00           50.00      950.00
+          OI4       O4  20240420             1 Hyderabad            1 Electronics         3     2850.00            0.00     2850.00
+          OI6       O5  20240801             2 Bengaluru            2       Books         2     1000.00           20.00      980.00
+
+Expected:
+ * C1 has two versions; OI1 (March) and OI4 (April, late) -> Hyderabad key,
+   OI3 (July) -> Chennai key.
+ * P1 has two versions; OI1/OI4 (before 2024-05-01) -> Electronics,
+   OI3 (July) moves to the Mobiles version when the late product change
+   arrives (in-place fact update - no new fact row).
+ * 7 order lines delivered over 4 batches (OI3 twice, OI5 invalid) -> 5 facts.
+ * OI5 (unknown product P999) is quarantined; no fact row, no broken FK.
+
+
+==============================================================================
+ 13. Automated tests
+==============================================================================
+============================= test session starts =============================
+platform win32 -- Python 3.12.6, pytest-9.2.0, pluggy-1.7.0 -- D:\data wearhouse\ecommerce-data-warehouse\.venv\Scripts\python.exe
+rootdir: D:\data wearhouse\ecommerce-data-warehouse
+configfile: pytest.ini
+testpaths: tests
+plugins: Faker-40.54.0
+collecting ... collected 108 items
+
+tests/test_analytics.py::test_fixture_is_current PASSED                  [  0%]
+tests/test_analytics.py::test_all_queries_execute PASSED                 [  1%]
+tests/test_analytics.py::test_total_revenue PASSED                       [  2%]
+tests/test_analytics.py::test_monthly_and_yearly_revenue_add_up PASSED   [  3%]
+tests/test_analytics.py::test_category_city_and_payment_revenue PASSED   [  4%]
+tests/test_analytics.py::test_top_products_and_status PASSED             [  5%]
+tests/test_analytics.py::test_average_order_value_is_order_level PASSED  [  6%]
+tests/test_analytics.py::test_dimension_joins_do_not_double_count PASSED [  7%]
+tests/test_generator.py::test_same_seed_gives_identical_files PASSED     [  8%]
+tests/test_generator.py::test_different_seed_gives_different_data PASSED [  9%]
+tests/test_generator.py::test_exact_order_item_count_and_valid_relationships PASSED [ 10%]
+tests/test_generator.py::test_clean_dataset_passes_validation PASSED     [ 11%]
+tests/test_generator.py::test_invalid_dataset_is_kept_separate PASSED    [ 12%]
+tests/test_idempotency.py::test_same_input_twice_changes_nothing PASSED  [ 12%]
+tests/test_idempotency.py::test_sample_dataset_three_runs_keep_totals PASSED [ 13%]
+tests/test_idempotency.py::test_corrected_source_record_updates_fact_in_place PASSED [ 14%]
+tests/test_idempotency.py::test_order_status_change_updates_every_line PASSED [ 15%]
+tests/test_idempotency.py::test_stale_order_update_is_ignored PASSED     [ 16%]
+tests/test_idempotency.py::test_run_id_cannot_be_reused PASSED           [ 17%]
+tests/test_ingestion.py::test_valid_csv_is_extracted_completely PASSED   [ 18%]
+tests/test_ingestion.py::test_missing_csv_file_raises PASSED             [ 19%]
+tests/test_ingestion.py::test_missing_source_directory_raises PASSED     [ 20%]
+tests/test_ingestion.py::test_empty_csv_file_raises PASSED               [ 21%]
+tests/test_ingestion.py::test_whitespace_only_file_raises PASSED         [ 22%]
+tests/test_ingestion.py::test_header_only_file_is_a_valid_empty_batch PASSED [ 23%]
+tests/test_ingestion.py::test_wrong_file_extension_raises PASSED         [ 24%]
+tests/test_ingestion.py::test_missing_required_column_raises PASSED      [ 25%]
+tests/test_ingestion.py::test_missing_optional_column_is_added_empty PASSED [ 25%]
+tests/test_ingestion.py::test_unexpected_column_is_reported_and_preserved PASSED [ 26%]
+tests/test_ingestion.py::test_unexpected_column_fails_in_strict_mode PASSED [ 27%]
+tests/test_ingestion.py::test_duplicate_header_names_raise PASSED        [ 28%]
+tests/test_ingestion.py::test_header_is_case_and_whitespace_insensitive PASSED [ 29%]
+tests/test_ingestion.py::test_malformed_row_is_captured_not_dropped PASSED [ 30%]
+tests/test_ingestion.py::test_source_dir_from_environment PASSED         [ 31%]
+tests/test_loading.py::test_dimension_load_creates_current_members PASSED [ 32%]
+tests/test_loading.py::test_scd2_change_expires_old_and_creates_new_version PASSED [ 33%]
+tests/test_loading.py::test_dimension_rerun_creates_no_duplicates PASSED [ 34%]
+tests/test_loading.py::test_type1_attribute_overwrites_without_new_version PASSED [ 35%]
+tests/test_loading.py::test_out_of_order_dimension_update_is_ignored PASSED [ 36%]
+tests/test_loading.py::test_product_scd2_on_category_change PASSED       [ 37%]
+tests/test_loading.py::test_date_dimension_load_is_idempotent PASSED     [ 37%]
+tests/test_loading.py::test_successful_fact_load PASSED                  [ 38%]
+tests/test_loading.py::test_foreign_keys_are_enforced PASSED             [ 39%]
+tests/test_loading.py::test_duplicate_fact_prevention PASSED             [ 40%]
+tests/test_loading.py::test_corrected_fact_updates_in_place PASSED       [ 41%]
+tests/test_loading.py::test_measure_check_constraints PASSED             [ 42%]
+tests/test_loading.py::test_transaction_rollback_leaves_no_partial_data PASSED [ 43%]
+tests/test_loading.py::test_only_one_current_version_allowed PASSED      [ 44%]
+tests/test_loading.py::test_overlapping_versions_rejected PASSED         [ 45%]
+tests/test_pipeline.py::test_complete_successful_pipeline PASSED         [ 46%]
+tests/test_pipeline.py::test_empty_batch PASSED                          [ 47%]
+tests/test_pipeline.py::test_partial_invalid_batch PASSED                [ 48%]
+tests/test_pipeline.py::test_database_failure_rolls_back_warehouse PASSED [ 49%]
+tests/test_pipeline.py::test_retry_after_failure PASSED                  [ 50%]
+tests/test_pipeline.py::test_scd2_customer_move PASSED                   [ 50%]
+tests/test_pipeline.py::test_late_arriving_order PASSED                  [ 51%]
+tests/test_pipeline.py::test_missing_product_reference_is_quarantined PASSED [ 52%]
+tests/test_pipeline.py::test_late_dimension_change_rekeys_existing_facts PASSED [ 53%]
+tests/test_pipeline.py::test_unexpected_schema_change_is_tolerated_and_recorded PASSED [ 54%]
+tests/test_pipeline.py::test_unexpected_schema_change_fails_in_strict_mode PASSED [ 55%]
+tests/test_pipeline.py::test_missing_required_column_fails_run PASSED    [ 56%]
+tests/test_pipeline.py::test_missing_file_fails_run PASSED               [ 57%]
+tests/test_pipeline.py::test_backfill_window PASSED                      [ 58%]
+tests/test_reconciliation.py::test_successful_run_reconciles_and_writes_report PASSED [ 59%]
+tests/test_reconciliation.py::test_input_equals_valid_plus_rejected PASSED [ 60%]
+tests/test_reconciliation.py::test_missing_fact_row_is_detected PASSED   [ 61%]
+tests/test_reconciliation.py::test_wrong_dimension_version_is_detected PASSED [ 62%]
+tests/test_reconciliation.py::test_pipeline_does_not_report_success_when_reconciliation_fails PASSED [ 62%]
+tests/test_reconciliation.py::test_unknown_run_raises PASSED             [ 63%]
+tests/test_transformation.py::test_gross_sales_and_net_revenue_are_exact PASSED [ 64%]
+tests/test_transformation.py::test_float_arithmetic_would_be_wrong_but_measures_are_not PASSED [ 65%]
+tests/test_transformation.py::test_calculate_measures_rejects_excessive_discount PASSED [ 66%]
+tests/test_transformation.py::test_date_key_generation PASSED            [ 67%]
+tests/test_transformation.py::test_date_dimension_attributes PASSED      [ 68%]
+tests/test_transformation.py::test_date_range_covers_full_years PASSED   [ 69%]
+tests/test_transformation.py::test_surrogate_key_mapping PASSED          [ 70%]
+tests/test_transformation.py::test_historical_dimension_resolution_uses_event_date PASSED [ 71%]
+tests/test_transformation.py::test_unresolvable_keys_are_reported PASSED [ 72%]
+tests/test_transformation.py::test_customer_transformation_rules PASSED  [ 73%]
+tests/test_transformation.py::test_product_transformation_rules PASSED   [ 74%]
+tests/test_transformation.py::test_transform_sales_end_to_end PASSED     [ 75%]
+tests/test_validation.py::test_valid_records_pass PASSED                 [ 75%]
+tests/test_validation.py::test_sample_dataset_is_fully_valid PASSED      [ 76%]
+tests/test_validation.py::test_missing_customer_id PASSED                [ 77%]
+tests/test_validation.py::test_invalid_email PASSED                      [ 78%]
+tests/test_validation.py::test_duplicate_customer_id_exact_keeps_first PASSED [ 79%]
+tests/test_validation.py::test_duplicate_customer_id_conflicting_rejects_all_and_cascades PASSED [ 80%]
+tests/test_validation.py::test_duplicate_order_item_id PASSED            [ 81%]
+tests/test_validation.py::test_negative_quantity PASSED                  [ 82%]
+tests/test_validation.py::test_zero_and_non_numeric_quantity PASSED      [ 83%]
+tests/test_validation.py::test_negative_price PASSED                     [ 84%]
+tests/test_validation.py::test_excessive_discount PASSED                 [ 85%]
+tests/test_validation.py::test_discount_equal_to_gross_is_allowed PASSED [ 86%]
+tests/test_validation.py::test_invalid_product_reference PASSED          [ 87%]
+tests/test_validation.py::test_invalid_customer_reference PASSED         [ 87%]
+tests/test_validation.py::test_reference_satisfied_by_existing_warehouse_record PASSED [ 88%]
+tests/test_validation.py::test_malformed_dates PASSED                    [ 89%]
+tests/test_validation.py::test_invalid_order_status_and_case_normalisation PASSED [ 90%]
+tests/test_validation.py::test_multiple_reasons_for_one_record PASSED    [ 91%]
+tests/test_validation.py::test_more_than_two_decimal_places_rejected PASSED [ 92%]
+tests/test_validation.py::test_updated_before_created_rejected PASSED    [ 93%]
+tests/test_validation.py::test_email_shared_by_two_customers_rejected PASSED [ 94%]
+tests/test_validation.py::test_rejected_record_keeps_original_values PASSED [ 95%]
+tests/test_validation.py::test_every_injected_defect_is_detected PASSED  [ 96%]
+tests/test_validation.py::test_non_plain_money_formats_rejected[1e2] PASSED [ 97%]
+tests/test_validation.py::test_non_plain_money_formats_rejected[NaN] PASSED [ 98%]
+tests/test_validation.py::test_non_plain_money_formats_rejected[1,000.00] PASSED [ 99%]
+tests/test_validation.py::test_non_plain_money_formats_rejected[\u20b9100] PASSED [100%]
+
+============================ 108 passed in 33.58s =============================
+
+==============================================================================
+ 14. Performance benchmark (1K / 10K / 100K)
+==============================================================================
+2026-11-11 10:39:29,319 | WARNING | ecommerce_dw.database | Dropped schemas: raw, source, dw, ops
+[benchmark] 1,000 order items: running pipeline ...
+[benchmark] 1,000: total 1.38s, re-run 1.48s (SUCCESS/SUCCESS)
+2026-11-11 10:39:32,539 | WARNING | ecommerce_dw.database | Dropped schemas: raw, source, dw, ops
+[benchmark] 10,000 order items: running pipeline ...
+[benchmark] 10,000: total 2.43s, re-run 1.99s (SUCCESS/SUCCESS)
+2026-11-11 10:39:37,857 | WARNING | ecommerce_dw.database | Dropped schemas: raw, source, dw, ops
+[benchmark] 100,000 order items: running pipeline ...
+[benchmark] 100,000: total 23.71s, re-run 25.77s (SUCCESS/SUCCESS)
+E-Commerce Sales Data Warehouse - Performance Report
+====================================================================================================
+Generated at      : 2026-11-11 05:10:48 UTC
+Platform          : Windows-11-10.0.26200-SP0 | CPUs: 12
+Python            : 3.12.6 | pandas 3.1.1 | numpy 2.5.4 | SQLAlchemy 2.1.8
+PostgreSQL        : 18.6 (Debian 18.6-1.pgdg13+2) (Docker container, same machine)
+Data              : synthetic, seed=42; customers = n/10, products = n/100 (minimum 100 / 50)
+Method            : fresh database per size; first run = full load; second run = same files again (idempotent re-run)
+
+All timings are wall-clock seconds measured during this benchmark run.
+
+ order items   orders  generate  extract  validate  transform     load  reconcile    total    rows/s   re-run  re-run ins/unch
+-----------------------------------------------------------------------------------------------------------------------------
+       1,000      403     0.129    0.012     0.059      0.075    0.659      0.458    1.378       726    1.478           0/1000
+      10,000    4,043     0.065    0.032     0.267      0.332    1.428      0.252    2.430     4,115    1.991          0/10000
+     100,000   40,120     0.615    0.555     2.422      2.069   13.312      5.218   23.709     4,218   25.768         0/100000
+
+Column notes: 'total' is the end-to-end pipeline time (excludes data generation);
+'load' = raw landing + quarantine + source upserts + dimensions + date dim + facts;
+'transform' = typing/cleaning + fact build + point-in-time key resolution;
+'rows/s' = order-item rows / total; 're-run ins/unch' must be 0/<all> (idempotency).
+Run status (first/second): 1,000=SUCCESS/SUCCESS, 10,000=SUCCESS/SUCCESS, 100,000=SUCCESS/SUCCESS
+
+Optimisation experiment - bulk loading strategy (same fact rows, temp table):
+  row-by-row INSERT (one statement per row): 10,000 rows in 19.987s (500 rows/s)
+  PostgreSQL COPY (used by the pipeline)   : 10,000 rows in 0.139s (71,939 rows/s)
+  speed-up: 143.8x
+
+Chosen optimisation: every bulk write in the pipeline uses COPY into a temporary
+staging table followed by ONE set-based INSERT ... ON CONFLICT statement, instead of
+per-row INSERT/UPDATE round trips. Validation and measures are vectorised in pandas;
+Pydantic validates rows in chunks of BATCH_SIZE (one TypeAdapter call per chunk).
+
+Measured bottleneck at 100,000 rows: 'load' (13.31s, 56% of the total).
+Next candidates (not implemented): replace the per-row Pydantic pass with fully
+vectorised checks for very large files; partition raw.* by run for 10M+ rows; drop and
+rebuild fact indexes around very large initial loads.
+
+
+==============================================================================
+ 15. Dashboard (tables + charts) -> reports\dashboard.html
+==============================================================================
+Dashboard written to D:\data wearhouse\ecommerce-data-warehouse\reports\dashboard.html
+
+ALL STEPS COMPLETED SUCCESSFULLY
+Reports: reports\   Logs: logs\pipeline.log

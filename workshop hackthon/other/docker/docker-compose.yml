@@ -1,0 +1,64 @@
+# Full stack: PostgreSQL 18 + FastAPI backend + React frontend (nginx).
+#
+#   cd "workshop hackthon/other/docker"
+#   Copy-Item .env.example .env      # set DB_PASSWORD
+#   docker compose up -d --build
+#
+# Frontend: http://localhost:${FRONTEND_PORT:-8080}   API docs: http://localhost:${BACKEND_PORT:-8000}/docs
+# Services reach each other by service name: backend -> postgres:5432, nginx -> backend:8000.
+
+name: sales-dw
+
+services:
+  postgres:
+    image: postgres:18
+    environment:
+      POSTGRES_DB: ${DB_NAME:-workshop_dw}
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in other/docker/.env}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql   # PostgreSQL 18 layout
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-workshop_dw}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  backend:
+    build:
+      context: ../..
+      dockerfile: backend/Dockerfile
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql+psycopg://${DB_USER:-postgres}:${DB_PASSWORD}@postgres:5432/${DB_NAME:-workshop_dw}
+      APP_ENV: docker
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      BATCH_SIZE: ${BATCH_SIZE:-5000}
+      RANDOM_SEED: ${RANDOM_SEED:-42}
+      CORS_ORIGINS: http://localhost:${FRONTEND_PORT:-8080}
+    ports:
+      - "${BACKEND_PORT:-8000}:8000"
+    volumes:
+      - datasets:/srv/other/datasets/generated
+      - uploads:/srv/other/datasets/uploads
+      - reports:/srv/other/reports
+
+  frontend:
+    build:
+      context: ../..
+      dockerfile: other/docker/Dockerfile
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "${FRONTEND_PORT:-8080}:80"
+
+volumes:
+  pgdata:
+  datasets:
+  uploads:
+  reports:

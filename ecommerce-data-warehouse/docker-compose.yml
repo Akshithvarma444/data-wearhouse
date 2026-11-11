@@ -1,0 +1,41 @@
+services:
+  postgres:
+    image: postgres:18
+    container_name: ecommerce_dw_postgres
+    environment:
+      POSTGRES_DB: ${DB_NAME:-ecommerce_dw}
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in .env}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      # PostgreSQL 18 images keep data under /var/lib/postgresql/<major>/docker
+      - pgdata:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-ecommerce_dw}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  # Optional: run the pipeline itself in a container.
+  #   docker compose --profile app run --rm app python -m src.cli init-db
+  #   docker compose --profile app run --rm app python -m src.cli run --input data/sample
+  #   docker compose --profile app run --rm app pytest -v
+  app:
+    build: .
+    profiles: ["app"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql+psycopg://${DB_USER:-postgres}:${DB_PASSWORD}@postgres:5432/${DB_NAME:-ecommerce_dw}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      BATCH_SIZE: ${BATCH_SIZE:-5000}
+      RANDOM_SEED: ${RANDOM_SEED:-42}
+    volumes:
+      - ./data:/app/data
+      - ./reports:/app/reports
+      - ./logs:/app/logs
+
+volumes:
+  pgdata:

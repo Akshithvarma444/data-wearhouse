@@ -1,0 +1,547 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sales Warehouse Dashboard</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Same design language as the React app: navy sidebar, white cards, blue accent. Light theme by design. */
+:root {
+  color-scheme: light;
+  --page: #f4f7fb; --surface: #ffffff; --ink: #0b1b35; --ink-2: #475569; --muted: #64748b;
+  --grid: #e2e8f0; --axis: #cbd5e1; --border: rgba(15,23,42,0.08);
+  --navy: #0b1b35; --navy-2: #050d1c; --brand: #2a78d6; --brand-2: #1f63b8; --brand-soft: #eef5ff;
+  --series-1: #2a78d6; --series-2: #eb6834;
+  --good: #10b981; --critical: #f43f5e; --good-text: #047857; --critical-text: #be123c;
+  --hover: rgba(42,120,214,0.07);
+  --shadow: 0 1px 2px rgba(15,23,42,0.04), 0 4px 16px -4px rgba(15,23,42,0.08);
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body { margin: 0; color: var(--ink); font: 14px/1.5 "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, sans-serif;
+       background: radial-gradient(1200px 500px at 85% -10%, rgba(42,120,214,0.07), transparent 60%), var(--page); }
+.app { display: flex; min-height: 100%; }
+aside { width: 256px; flex: none; background: linear-gradient(180deg, var(--navy), var(--navy-2)); color: #fff;
+        display: flex; flex-direction: column; position: sticky; top: 0; height: 100vh; }
+.brand { display: flex; align-items: center; gap: 12px; padding: 24px 20px; }
+.brand .logo { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center;
+               background: linear-gradient(135deg, #5b9cf0, #1f63b8); box-shadow: 0 8px 20px -6px rgba(31,99,184,.6); }
+.brand b { display: block; font-size: 15px; letter-spacing: -0.01em; }
+.brand small { color: #94a3b8; font-size: 11px; }
+.navlabel { color: #64748b; font-size: 10px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; padding: 0 24px 6px; }
+nav { display: flex; flex-direction: column; gap: 2px; padding: 0 12px; }
+nav button { position: relative; display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; background: none; border: 0;
+             color: #cbd5e1; font: inherit; font-size: 13.5px; padding: 9px 12px; border-radius: 12px; cursor: pointer; }
+nav button svg { width: 18px; height: 18px; color: #94a3b8; flex: none; }
+nav button:hover { background: rgba(255,255,255,0.05); color: #fff; }
+nav button[aria-selected="true"] { background: linear-gradient(90deg, rgba(42,120,214,.28), rgba(42,120,214,.05)); color: #fff; font-weight: 600; }
+nav button[aria-selected="true"] svg { color: #5b9cf0; }
+nav button[aria-selected="true"]::before { content: ""; position: absolute; left: 0; top: 50%; width: 4px; height: 20px; transform: translateY(-50%);
+                                           border-radius: 0 4px 4px 0; background: #5b9cf0; }
+.status { margin: auto 12px 12px; padding: 14px; border-radius: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); }
+.status p { margin: 0; font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.status p i { width: 9px; height: 9px; border-radius: 50%; background: #34d399; display: inline-block; }
+.status small { color: #94a3b8; font-size: 11px; display: block; margin-top: 4px; }
+.content { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.topbar { position: sticky; top: 0; z-index: 5; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+          padding: 12px max(32px, env(safe-area-inset-right, 0px)) 12px max(32px, env(safe-area-inset-left, 0px));
+          background: rgba(255,255,255,0.88); backdrop-filter: blur(8px); border-bottom: 1px solid var(--grid); }
+.topbar .t { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.topbar .ic { width: 32px; height: 32px; border-radius: 10px; background: var(--brand-soft); color: var(--brand); display: grid; place-items: center; }
+.topbar .ic svg { width: 16px; height: 16px; }
+.topbar b { font-size: 14px; display: block; }
+.topbar small { color: var(--muted); font-size: 12px; }
+.pill { display: inline-flex; align-items: center; gap: 8px; border: 1px solid #a7f3d0; background: #ecfdf5; color: var(--good-text);
+        border-radius: 999px; padding: 4px 12px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+.pill i { width: 8px; height: 8px; border-radius: 50%; background: var(--good); }
+.menu { display: none; background: none; border: 0; padding: 6px; border-radius: 8px; cursor: pointer; color: var(--ink-2); }
+main { padding-block: 28px 48px; padding-left: max(32px, env(safe-area-inset-left, 0px)); padding-right: max(32px, env(safe-area-inset-right, 0px));
+       width: 100%; max-width: 1360px; margin: 0 auto; }
+section[hidden] { display: none; }
+.eyebrow { color: var(--brand); font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; margin: 0 0 4px; }
+.pagetitle { font-size: 24px; font-weight: 700; letter-spacing: -0.02em; margin: 0 0 22px; }
+.hero { position: relative; overflow: hidden; border-radius: 24px; padding: 30px; margin-bottom: 20px; color: #fff;
+        background: linear-gradient(135deg, #0b1b35, #12284d 55%, #1c5096); box-shadow: 0 12px 32px -8px rgba(15,23,42,.25);
+        display: grid; grid-template-columns: minmax(0,1.4fr) minmax(0,1fr); gap: 28px; }
+.hero::after { content: ""; position: absolute; right: -90px; top: -90px; width: 280px; height: 280px; border-radius: 50%;
+               background: rgba(91,156,240,.22); filter: blur(50px); pointer-events: none; }
+.hero .k { color: #bcd6fe; font-size: 12px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; margin: 0; }
+.hero .big { font-size: 46px; font-weight: 800; letter-spacing: -0.03em; margin: 6px 0 6px; font-variant-numeric: tabular-nums; }
+.hero .s { color: #cbd5e1; margin: 0; }
+.hero .panel { position: relative; z-index: 1; border-radius: 16px; padding: 18px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.15); }
+.hero .panel dl { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 16px; margin: 12px 0 0; }
+.hero .panel dt { color: #cbd5e1; font-size: 12px; } .hero .panel dd { margin: 0; font-weight: 600; font-variant-numeric: tabular-nums; }
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-bottom: 20px; }
+.tile { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 18px 20px; box-shadow: var(--shadow); }
+.tile .row { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+.tile .label { color: var(--muted); font-size: 13px; font-weight: 500; }
+.tile .chip { width: 36px; height: 36px; border-radius: 12px; display: grid; place-items: center; color: #fff; flex: none; }
+.tile .chip svg { width: 18px; height: 18px; }
+.tile .value { font-size: 26px; font-weight: 700; letter-spacing: -0.02em; margin-top: 6px; font-variant-numeric: tabular-nums; }
+.tile .note { color: var(--muted); font-size: 12px; margin-top: 4px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(460px, 100%), 1fr)); gap: 20px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 20px; min-width: 0; box-shadow: var(--shadow); }
+.card.wide { grid-column: 1 / -1; }
+.card-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 4px; }
+.card h2 { font-size: 15px; margin: 0; font-weight: 650; letter-spacing: -0.01em; }
+.card .desc { color: var(--muted); font-size: 12px; margin: 0 0 12px; }
+.toggle { display: inline-flex; border: 1px solid var(--grid); border-radius: 10px; overflow: hidden; flex: none; background: #f8fafc; }
+.toggle button { background: none; border: 0; color: var(--ink-2); font: inherit; font-size: 12px; padding: 5px 12px; cursor: pointer; }
+.toggle button[aria-pressed="true"] { background: var(--brand); color: #fff; font-weight: 600; }
+svg { display: block; width: 100%; height: auto; overflow: visible; }
+svg text { fill: var(--ink-2); font-size: 12px; }
+svg .tick { fill: var(--muted); font-variant-numeric: tabular-nums; }
+.table-wrap { overflow-x: auto; max-height: 440px; overflow-y: auto; border: 1px solid var(--grid); border-radius: 12px; }
+table { border-collapse: collapse; width: 100%; font-size: 13px; }
+th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid #f1f5f9; white-space: nowrap; }
+th { color: var(--muted); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: .05em; position: sticky; top: 0; background: #f8fafc; }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+td.wrap { white-space: normal; min-width: 260px; }
+tbody tr:hover { background: var(--hover); }
+.badge { display: inline-flex; align-items: center; gap: 5px; font-weight: 600; font-size: 12px; border-radius: 999px; padding: 2px 9px; }
+.badge i { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
+.ok { color: var(--good-text); background: #ecfdf5; } .ok i { background: var(--good); }
+.bad { color: var(--critical-text); background: #fff1f2; } .bad i { background: var(--critical); }
+.info { color: var(--ink-2); background: #f1f5f9; } .info i { background: var(--axis); }
+.tip { position: fixed; pointer-events: none; background: #fff; color: var(--ink); border: 1px solid var(--border); border-radius: 10px;
+       padding: 8px 11px; font-size: 12px; box-shadow: 0 12px 32px -8px rgba(15,23,42,.2); display: none; z-index: 20; max-width: 280px; }
+.tip b { display: block; font-weight: 600; margin-bottom: 2px; }
+.empty { color: var(--muted); padding: 24px 0; text-align: center; }
+
+/* plain overrides: flat panels, no decorative gradients or icon badges */
+body { background: #f3f4f6; font-family: "Segoe UI", system-ui, sans-serif; }
+aside { background: #172338; width: 210px; }
+.brand { padding: 16px; border-bottom: 1px solid rgba(255,255,255,.1); margin-bottom: 10px; }
+.brand .logo { display: none; }
+nav button { border-radius: 0; border-left: 2px solid transparent; padding: 7px 14px; font-size: 13px; }
+nav button[aria-selected="true"] { background: rgba(255,255,255,.08); border-left-color: #5d8fd0; }
+nav button[aria-selected="true"]::before { display: none; }
+.status { border-radius: 4px; }
+.topbar { background: #fff; backdrop-filter: none; padding-top: 10px; padding-bottom: 10px; }
+.topbar .ic { display: none; }
+.pill { border: 0; background: none; color: #64748b; font-weight: 400; }
+.eyebrow { display: none; }
+.pagetitle { font-size: 18px; font-weight: 600; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid #e2e8f0; }
+.hero { background: #fff; color: #0f172a; border: 1px solid #e2e8f0; border-radius: 6px; box-shadow: none; padding: 16px 18px; gap: 18px; }
+.hero::after { display: none; }
+.hero .k { color: #64748b; letter-spacing: 0; text-transform: none; font-weight: 500; font-size: 13px; }
+.hero .big { font-size: 30px; font-weight: 600; letter-spacing: 0; margin: 2px 0; }
+.hero .s { color: #475569; }
+.hero .s b { color: #0f172a !important; }
+.hero .panel { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 4px; }
+.hero .panel dt { color: #64748b; }
+.tile { border-radius: 6px; box-shadow: none; padding: 12px 14px; }
+.tile .chip { display: none; }
+.tile .value { font-size: 20px; font-weight: 600; letter-spacing: 0; }
+.card { border-radius: 6px; box-shadow: none; padding: 14px 16px; }
+.toggle { border-radius: 4px; }
+.toggle button[aria-pressed="true"] { background: #e2e8f0; color: #0f172a; }
+.table-wrap { border-radius: 0; }
+th { text-transform: none; letter-spacing: 0; font-size: 12px; color: #475569; background: #f1f5f9; }
+.badge { border-radius: 3px; }
+@media (max-width: 1000px) {
+  aside { position: fixed; left: 0; top: 0; z-index: 30; transform: translateX(-100%); transition: transform .2s; }
+  body.nav-open aside { transform: none; box-shadow: 0 0 0 100vmax rgba(5,13,28,.45); }
+  .menu { display: inline-flex; }
+  .hero { grid-template-columns: 1fr; }
+}
+@media (max-width: 640px) {
+  main { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  .topbar { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  .hero { padding: 22px; } .hero .big { font-size: 36px; }
+  .grid { grid-template-columns: 1fr; } .pill { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { aside { transition: none; } }
+</style>
+</head>
+<body>
+<div class="app">
+<aside>
+  <div class="brand">
+    <span class="logo"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14a9 3 0 0 0 18 0V5"/><path d="M3 12a9 3 0 0 0 18 0"/></svg></span>
+    <span><b>Sales Warehouse</b><small>E-commerce data platform</small></span>
+  </div>
+  <p class="navlabel">Report</p>
+  <nav role="tablist" id="tabs"></nav>
+  <div class="status"><p><i></i>Snapshot report</p><small id="meta"></small></div>
+</aside>
+<div class="content">
+  <div class="topbar">
+    <div class="t">
+      <button class="menu" id="menu" aria-label="Open menu"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+      <span class="ic" id="topicon"></span>
+      <span><b id="toptitle"></b><small id="topdesc"></small></span>
+    </div>
+    <span class="pill"><i></i><span id="pilltext"></span></span>
+  </div>
+  <main>
+    <section id="tab-sales"></section>
+    <section id="tab-quality" hidden></section>
+    <section id="tab-pipeline" hidden></section>
+    <section id="tab-performance" hidden></section>
+    <section id="tab-history" hidden></section>
+  </main>
+</div>
+</div>
+<div class="tip" id="tip"></div>
+<script id="data" type="application/json">{"generated_at": "2026-11-11 07:42 UTC", "database": "ecommerce_dw", "kpis": {"fact_rows": 25054, "net_revenue": 139991143.7, "orders": 8674, "units": 32603, "customers": 1030, "products": 215, "rejected": 25, "runs": 4, "runs_ok": 4, "aov": 16139.17}, "monthly": [{"year": 2023, "month": 1, "month_name": "January", "orders": 155, "net_revenue": 2524704.95, "mom_growth_pct": null}, {"year": 2023, "month": 2, "month_name": "February", "orders": 175, "net_revenue": 2579150.56, "mom_growth_pct": 2.16}, {"year": 2023, "month": 3, "month_name": "March", "orders": 195, "net_revenue": 2539738.72, "mom_growth_pct": -1.53}, {"year": 2023, "month": 4, "month_name": "April", "orders": 178, "net_revenue": 2499720.98, "mom_growth_pct": -1.58}, {"year": 2023, "month": 5, "month_name": "May", "orders": 196, "net_revenue": 2963759.35, "mom_growth_pct": 18.56}, {"year": 2023, "month": 6, "month_name": "June", "orders": 174, "net_revenue": 2959005.46, "mom_growth_pct": -0.16}, {"year": 2023, "month": 7, "month_name": "July", "orders": 203, "net_revenue": 3631796.1, "mom_growth_pct": 22.74}, {"year": 2023, "month": 8, "month_name": "August", "orders": 219, "net_revenue": 3533745.81, "mom_growth_pct": -2.7}, {"year": 2023, "month": 9, "month_name": "September", "orders": 214, "net_revenue": 3914175.51, "mom_growth_pct": 10.77}, {"year": 2023, "month": 10, "month_name": "October", "orders": 296, "net_revenue": 4275235.97, "mom_growth_pct": 9.22}, {"year": 2023, "month": 11, "month_name": "November", "orders": 332, "net_revenue": 5660654.75, "mom_growth_pct": 32.41}, {"year": 2023, "month": 12, "month_name": "December", "orders": 231, "net_revenue": 3818272.17, "mom_growth_pct": -32.55}, {"year": 2024, "month": 1, "month_name": "January", "orders": 189, "net_revenue": 3106288.32, "mom_growth_pct": -18.65}, {"year": 2024, "month": 2, "month_name": "February", "orders": 206, "net_revenue": 2402012.95, "mom_growth_pct": -22.67}, {"year": 2024, "month": 3, "month_name": "March", "orders": 221, "net_revenue": 3718388.44, "mom_growth_pct": 54.8}, {"year": 2024, "month": 4, "month_name": "April", "orders": 196, "net_revenue": 4175994.29, "mom_growth_pct": 12.31}, {"year": 2024, "month": 5, "month_name": "May", "orders": 255, "net_revenue": 3693442.03, "mom_growth_pct": -11.56}, {"year": 2024, "month": 6, "month_name": "June", "orders": 211, "net_revenue": 3398562.92, "mom_growth_pct": -7.98}, {"year": 2024, "month": 7, "month_name": "July", "orders": 212, "net_revenue": 4034181.77, "mom_growth_pct": 18.7}, {"year": 2024, "month": 8, "month_name": "August", "orders": 206, "net_revenue": 3093463.71, "mom_growth_pct": -23.32}, {"year": 2024, "month": 9, "month_name": "September", "orders": 239, "net_revenue": 4086320.7, "mom_growth_pct": 32.1}, {"year": 2024, "month": 10, "month_name": "October", "orders": 365, "net_revenue": 5578974.07, "mom_growth_pct": 36.53}, {"year": 2024, "month": 11, "month_name": "November", "orders": 376, "net_revenue": 5719904.65, "mom_growth_pct": 2.53}, {"year": 2024, "month": 12, "month_name": "December", "orders": 306, "net_revenue": 5002986.79, "mom_growth_pct": -12.53}, {"year": 2025, "month": 1, "month_name": "January", "orders": 194, "net_revenue": 3634745.48, "mom_growth_pct": -27.35}, {"year": 2025, "month": 2, "month_name": "February", "orders": 238, "net_revenue": 3638193.71, "mom_growth_pct": 0.09}, {"year": 2025, "month": 3, "month_name": "March", "orders": 219, "net_revenue": 3821220.13, "mom_growth_pct": 5.03}, {"year": 2025, "month": 4, "month_name": "April", "orders": 231, "net_revenue": 4518706.62, "mom_growth_pct": 18.25}, {"year": 2025, "month": 5, "month_name": "May", "orders": 241, "net_revenue": 3768706.46, "mom_growth_pct": -16.6}, {"year": 2025, "month": 6, "month_name": "June", "orders": 235, "net_revenue": 3010979.4, "mom_growth_pct": -20.11}, {"year": 2025, "month": 7, "month_name": "July", "orders": 245, "net_revenue": 3274739.26, "mom_growth_pct": 8.76}, {"year": 2025, "month": 8, "month_name": "August", "orders": 208, "net_revenue": 3303109.37, "mom_growth_pct": 0.87}, {"year": 2025, "month": 9, "month_name": "September", "orders": 235, "net_revenue": 4178640.38, "mom_growth_pct": 26.51}, {"year": 2025, "month": 10, "month_name": "October", "orders": 373, "net_revenue": 7158089.74, "mom_growth_pct": 71.3}, {"year": 2025, "month": 11, "month_name": "November", "orders": 402, "net_revenue": 5995712.76, "mom_growth_pct": -16.24}, {"year": 2025, "month": 12, "month_name": "December", "orders": 303, "net_revenue": 4777819.42, "mom_growth_pct": -20.31}], "yearly": [{"year": 2023, "orders": 2568, "units_sold": 9598, "net_revenue": 40899960.33, "yoy_growth_pct": null}, {"year": 2024, "orders": 2982, "units_sold": 11282, "net_revenue": 48010520.64, "yoy_growth_pct": 17.39}, {"year": 2025, "orders": 3124, "units_sold": 11723, "net_revenue": 51080662.73, "yoy_growth_pct": 6.39}], "category": [{"category": "Electronics", "orders": 2375, "units_sold": 4100, "net_revenue": 82302942.42, "revenue_share_pct": 58.79}, {"category": "Home & Kitchen", "orders": 2361, "units_sold": 4048, "net_revenue": 25009798.0, "revenue_share_pct": 17.87}, {"category": "Sports & Fitness", "orders": 2942, "units_sold": 5201, "net_revenue": 14168403.67, "revenue_share_pct": 10.12}, {"category": "Fashion", "orders": 1907, "units_sold": 3198, "net_revenue": 6897535.93, "revenue_share_pct": 4.93}, {"category": "Beauty & Personal Care", "orders": 3125, "units_sold": 5565, "net_revenue": 5279592.87, "revenue_share_pct": 3.77}, {"category": "Books", "orders": 3561, "units_sold": 6563, "net_revenue": 3329315.65, "revenue_share_pct": 2.38}, {"category": "Grocery", "orders": 2294, "units_sold": 3928, "net_revenue": 3003555.16, "revenue_share_pct": 2.15}], "city": [{"city": "Bengaluru", "state": "Karnataka", "customers": 81, "orders": 876, "net_revenue": 14765546.02}, {"city": "Mumbai", "state": "Maharashtra", "customers": 66, "orders": 769, "net_revenue": 11938734.93}, {"city": "Chennai", "state": "Tamil Nadu", "customers": 63, "orders": 668, "net_revenue": 11184356.84}, {"city": "New Delhi", "state": "Delhi", "customers": 76, "orders": 728, "net_revenue": 11148284.85}, {"city": "Pune", "state": "Maharashtra", "customers": 55, "orders": 587, "net_revenue": 9846384.55}, {"city": "Hyderabad", "state": "Telangana", "customers": 68, "orders": 524, "net_revenue": 7836442.94}, {"city": "Kolkata", "state": "West Bengal", "customers": 59, "orders": 487, "net_revenue": 7572703.33}, {"city": "Ahmedabad", "state": "Gujarat", "customers": 42, "orders": 385, "net_revenue": 6329922.74}, {"city": "Lucknow", "state": "Uttar Pradesh", "customers": 36, "orders": 354, "net_revenue": 6226576.24}, {"city": "Visakhapatnam", "state": "Andhra Pradesh", "customers": 28, "orders": 346, "net_revenue": 6023316.11}, {"city": "Nagpur", "state": "Maharashtra", "customers": 21, "orders": 348, "net_revenue": 4816397.15}, {"city": "Indore", "state": "Madhya Pradesh", "customers": 22, "orders": 289, "net_revenue": 4711906.87}, {"city": "Patna", "state": "Bihar", "customers": 22, "orders": 213, "net_revenue": 3693992.99}, {"city": "Coimbatore", "state": "Tamil Nadu", "customers": 20, "orders": 212, "net_revenue": 3677104.9}, {"city": "Jaipur", "state": "Rajasthan", "customers": 26, "orders": 243, "net_revenue": 3618797.81}, {"city": "Noida", "state": "Uttar Pradesh", "customers": 26, "orders": 236, "net_revenue": 3426514.2}, {"city": "Mysuru", "state": "Karnataka", "customers": 18, "orders": 179, "net_revenue": 3418863.54}, {"city": "Surat", "state": "Gujarat", "customers": 25, "orders": 177, "net_revenue": 3058163.3}, {"city": "Thiruvananthapuram", "state": "Kerala", "customers": 21, "orders": 191, "net_revenue": 3037011.13}, {"city": "Vijayawada", "state": "Andhra Pradesh", "customers": 18, "orders": 156, "net_revenue": 2713679.85}, {"city": "Kochi", "state": "Kerala", "customers": 15, "orders": 129, "net_revenue": 2701864.54}, {"city": "Bhubaneswar", "state": "Odisha", "customers": 18, "orders": 152, "net_revenue": 2243040.56}, {"city": "Chandigarh", "state": "Chandigarh", "customers": 14, "orders": 136, "net_revenue": 2199192.14}, {"city": "Guwahati", "state": "Assam", "customers": 19, "orders": 159, "net_revenue": 2157471.68}, {"city": "Bhopal", "state": "Madhya Pradesh", "customers": 21, "orders": 130, "net_revenue": 1644874.49}], "payment": [{"payment_method": "UPI", "orders": 3402, "net_revenue": 54777587.89, "average_order_value": 16101.58, "revenue_share_pct": 39.13}, {"payment_method": "CREDIT_CARD", "orders": 1620, "net_revenue": 24087938.88, "average_order_value": 14869.1, "revenue_share_pct": 17.21}, {"payment_method": "DEBIT_CARD", "orders": 1242, "net_revenue": 22033724.51, "average_order_value": 17740.52, "revenue_share_pct": 15.74}, {"payment_method": "CASH_ON_DELIVERY", "orders": 1277, "net_revenue": 20674777.78, "average_order_value": 16190.12, "revenue_share_pct": 14.77}, {"payment_method": "NET_BANKING", "orders": 615, "net_revenue": 10555471.37, "average_order_value": 17163.37, "revenue_share_pct": 7.54}, {"payment_method": "WALLET", "orders": 518, "net_revenue": 7861643.27, "average_order_value": 15176.92, "revenue_share_pct": 5.62}], "status": [{"order_status": "DELIVERED", "orders": 6948, "pct_of_orders": 69.31, "units": 26197.0, "order_value": 112326959.61}, {"order_status": "SHIPPED", "orders": 1028, "pct_of_orders": 10.25, "units": 3840.0, "order_value": 16778924.61}, {"order_status": "CANCELLED", "orders": 830, "pct_of_orders": 8.28, "units": 3062.0, "order_value": 13276015.14}, {"order_status": "PLACED", "orders": 698, "pct_of_orders": 6.96, "units": 2566.0, "order_value": 10885259.48}, {"order_status": "RETURNED", "orders": 521, "pct_of_orders": 5.2, "units": 2010.0, "order_value": 9047156.0}], "top_products": [{"product_id": "P000190", "product_name": "Himalaya Herbal Shampoo Max", "category": "Beauty & Personal Care", "units_sold": 1315, "orders": 814, "net_revenue": 270959.45}, {"product_id": "P000072", "product_name": "Arihant Novel Max", "category": "Books", "units_sold": 1190, "orders": 763, "net_revenue": 354907.55}, {"product_id": "P000122", "product_name": "Scholastic Exam Guide Classic", "category": "Books", "units_sold": 1015, "orders": 665, "net_revenue": 1285290.96}, {"product_id": "P000152", "product_name": "boAt LED Monitor Plus", "category": "Electronics", "units_sold": 902, "orders": 574, "net_revenue": 4167890.95}, {"product_id": "P000087", "product_name": "Adidas Winter Jacket Plus", "category": "Fashion", "units_sold": 756, "orders": 513, "net_revenue": 4241324.53}, {"product_id": "P000102", "product_name": "Arihant Children's Story Book Lite", "category": "Books", "units_sold": 677, "orders": 459, "net_revenue": 417699.65}, {"product_id": "P000007", "product_name": "Penguin Children's Story Book Plus", "category": "Books", "units_sold": 640, "orders": 424, "net_revenue": 165874.8}, {"product_id": "P000173", "product_name": "Bajaj Mixer Grinder Prime", "category": "Home & Kitchen", "units_sold": 621, "orders": 391, "net_revenue": 5039676.89}, {"product_id": "P000170", "product_name": "Cosco Cycling Helmet Prime", "category": "Sports & Fitness", "units_sold": 616, "orders": 391, "net_revenue": 4586926.67}, {"product_id": "P000114", "product_name": "Nivea Sunscreen Plus", "category": "Beauty & Personal Care", "units_sold": 590, "orders": 376, "net_revenue": 1279263.45}], "top_customers": [{"customer_id": "C0000067", "customer_name": "Vrishti Tank", "current_city": "Chennai", "orders": 58, "total_spent": 1197026.69}, {"customer_id": "C0000251", "customer_name": "Chandresh Devan", "current_city": "New Delhi", "orders": 40, "total_spent": 968104.36}, {"customer_id": "C0000106", "customer_name": "Sudiksha Cheema", "current_city": "Vijayawada", "orders": 52, "total_spent": 948997.96}, {"customer_id": "C0000304", "customer_name": "Vinaya Sule", "current_city": "Bengaluru", "orders": 69, "total_spent": 943955.93}, {"customer_id": "C0000442", "customer_name": "Faras Manne", "current_city": "Mumbai", "orders": 40, "total_spent": 899004.24}, {"customer_id": "C0000850", "customer_name": "Nidhi Chaudhari", "current_city": "Visakhapatnam", "orders": 32, "total_spent": 864306.61}, {"customer_id": "C0000827", "customer_name": "Pooja Bhattacharyya", "current_city": "Pune", "orders": 43, "total_spent": 857542.64}, {"customer_id": "C0000666", "customer_name": "Qabil Karnik", "current_city": "Nagpur", "orders": 63, "total_spent": 847996.64}, {"customer_id": "C0000248", "customer_name": "Imaran Lanka", "current_city": "Bengaluru", "orders": 40, "total_spent": 846541.58}, {"customer_id": "C0000181", "customer_name": "Yadavi Natarajan", "current_city": "Visakhapatnam", "orders": 64, "total_spent": 841849.31}], "segments": [{"segment": "1 order", "customers": 112, "orders": 112.0, "net_revenue": 1468919.45, "avg_spend_per_customer": 13115.35}, {"segment": "2-3 orders", "customers": 134, "orders": 331.0, "net_revenue": 5814771.99, "avg_spend_per_customer": 43393.82}, {"segment": "4-9 orders", "customers": 312, "orders": 1927.0, "net_revenue": 31366157.99, "avg_spend_per_customer": 100532.56}, {"segment": "10+ orders", "customers": 322, "orders": 6304.0, "net_revenue": 101341294.27, "avg_spend_per_customer": 314724.52}], "scd_history": [], "runs": [{"run_id": "run_20261111T050836Z_57ffae4e", "status": "SUCCESS", "start_time": "2026-11-11 05:08:36+00:00", "seconds": 3.913, "input_count": 36194, "valid_count": 36194, "rejected_count": 0, "inserted_count": 0, "updated_count": 0, "error_message": ""}, {"run_id": "run_20261111T050833Z_1d25f9c4", "status": "SUCCESS", "start_time": "2026-11-11 05:08:33+00:00", "seconds": 0.768, "input_count": 155, "valid_count": 130, "rejected_count": 25, "inserted_count": 60, "updated_count": 0, "error_message": ""}, {"run_id": "run_20261111T050828Z_787f7e26", "status": "SUCCESS", "start_time": "2026-11-11 05:08:28+00:00", "seconds": 3.495, "input_count": 36194, "valid_count": 36194, "rejected_count": 0, "inserted_count": 0, "updated_count": 0, "error_message": ""}, {"run_id": "run_20261111T050821Z_0a83d7c9", "status": "SUCCESS", "start_time": "2026-11-11 05:08:21+00:00", "seconds": 4.684, "input_count": 36194, "valid_count": 36194, "rejected_count": 0, "inserted_count": 24994, "updated_count": 0, "error_message": ""}], "reasons": [{"reason_code": "CONFLICTING_DUPLICATE", "records": 4}, {"reason_code": "NEGATIVE_VALUE", "records": 3}, {"reason_code": "EXACT_DUPLICATE", "records": 2}, {"reason_code": "EXCESSIVE_DISCOUNT", "records": 2}, {"reason_code": "INVALID_NUMBER", "records": 2}, {"reason_code": "INVALID_TIMESTAMP", "records": 2}, {"reason_code": "MISSING_REQUIRED_FIELD", "records": 2}, {"reason_code": "NON_POSITIVE_QUANTITY", "records": 2}, {"reason_code": "UNKNOWN_ORDER_REFERENCE", "records": 2}, {"reason_code": "INVALID_ALLOWED_VALUE", "records": 1}, {"reason_code": "INVALID_EMAIL", "records": 1}, {"reason_code": "MALFORMED_ROW", "records": 1}, {"reason_code": "UNKNOWN_CUSTOMER_REFERENCE", "records": 1}, {"reason_code": "UNKNOWN_PRODUCT_REFERENCE", "records": 1}], "rejects": [{"entity_name": "customers", "source_file": "customers.csv", "row_no": 32, "record_id": "(blank)", "reason_codes": "MISSING_REQUIRED_FIELD", "rejection_reason": "customer_id: missing required value (value='')"}, {"entity_name": "customers", "source_file": "customers.csv", "row_no": 33, "record_id": "C9000002", "reason_codes": "INVALID_EMAIL", "rejection_reason": "email: is not a valid email address (value='ravi.kumar_at_gmail.com')"}, {"entity_name": "customers", "source_file": "customers.csv", "row_no": 34, "record_id": "CX0000002", "reason_codes": "EXACT_DUPLICATE", "rejection_reason": "exact duplicate of row 3 (customer_id='CX0000002')"}, {"entity_name": "customers", "source_file": "customers.csv", "row_no": 35, "record_id": "C9000004", "reason_codes": "CONFLICTING_DUPLICATE", "rejection_reason": "customer_id 'C9000004' appears 2 times with different content"}, {"entity_name": "customers", "source_file": "customers.csv", "row_no": 36, "record_id": "C9000004", "reason_codes": "CONFLICTING_DUPLICATE", "rejection_reason": "customer_id 'C9000004' appears 2 times with different content"}, {"entity_name": "customers", "source_file": "customers.csv", "row_no": 37, "record_id": "C9000005", "reason_codes": "INVALID_TIMESTAMP", "rejection_reason": "created_at: Input should be a valid datetime or date, day value is outside expected range (value='2024-02-30 10:00:00')"}, {"entity_name": "order_items", "source_file": "order_items.csv", "row_no": 62, "record_id": "OIX000000002", "reason_codes": "EXACT_DUPLICATE", "rejection_reason": "exact duplicate of row 3 (order_item_id='OIX000000002')"}, {"entity_name": "order_items", "source_file": "order_items.csv", "row_no": 63, "record_id": "OI900000001", "reason_codes": "CONFLICTING_DUPLICATE", "rejection_reason": "order_item_id 'OI900000001' appears 2 times with different content"}, {"entity_name": "order_items", "source_file": "order_items.csv", "row_no": 64, "record_id": "OI900000001", "reason_codes": "CONFLICTING_DUPLICATE", "rejection_reason": "order_item_id 'OI900000001' appears 2 times with different content"}, {"entity_name": "order_items", "source_file": "order_items.csv", "row_no": 65, "record_id": "OI900000002", "reason_codes": "NON_POSITIVE_QUANTITY", "rejection_reason": "quantity: Input should be greater than 0 (value='-1')"}, {"entity_name": "order_items", "source_file": "order_items.csv", "row_no": 66, "record_id": "OI900000003", "reason_codes": "NON_POSITIVE_QUANTITY, EXCESSIVE_DISCOUNT", "rejection_reason": "quantity: Input should be greater than 0 (value='0'); discount_amount 205.95 exceeds gross sales 0.00"}, {"entity_name": "order_items", "source_file": "order_items.csv", "row_no": 67, "record_id": "OI900000004", "reason_codes": "NEGATIVE_VALUE", "rejection_reason": "unit_price: must be greater than or equal to 0 (value='-10.00')"}, {"entity_name": "order_items", "source_file": "order_items.csv", "row_no": 68, "record_id": "OI900000005", "reason_codes": "EXCESSIVE_DISCOUNT", "rejection_reason": "discount_amount 150.00 exceeds gross sales 100.00"}, {"entity_name": "order_items", "source_file": "order_items.csv", "row_no": 69, "record_id": "OI900000006", "reason_codes": "UNKNOWN_PRODUCT_REFERENCE", "rejection_reason": "product_id 'P999999' not found among valid products"}, {"entity_name": "order_items", "source_file": "order_items.csv", "row_no": 70, "record_id": "OI900000007", "reason_codes": "UNKNOWN_ORDER_REFERENCE", "rejection_reason": "order_id 'O99999999' not found among valid orders"}, {"entity_name": "order_items", "source_file": "order_items.csv", "row_no": 71, "record_id": "OI900000008", "reason_codes": "UNKNOWN_ORDER_REFERENCE", "rejection_reason": "order_id 'O90000002' not found among valid orders"}, {"entity_name": "order_items", "source_file": "order_items.csv", "row_no": 72, "record_id": "OI900000009", "reason_codes": "INVALID_NUMBER", "rejection_reason": "quantity: Input should be a valid integer, unable to parse string as an integer (value='two')"}, {"entity_name": "order_items", "source_file": "order_items.csv", "row_no": 73, "record_id": "OI900000010", "reason_codes": "NEGATIVE_VALUE", "rejection_reason": "discount_amount: must be greater than or equal to 0 (value='-5.00')"}, {"entity_name": "order_items", "source_file": "order_items.csv", "row_no": 74, "record_id": "OI-BAD-ROW", "reason_codes": "MALFORMED_ROW", "rejection_reason": "row has 3 field(s), header has 7"}, {"entity_name": "orders", "source_file": "orders.csv", "row_no": 27, "record_id": "O90000001", "reason_codes": "UNKNOWN_CUSTOMER_REFERENCE", "rejection_reason": "customer_id 'C9999999' not found among valid customers"}, {"entity_name": "orders", "source_file": "orders.csv", "row_no": 28, "record_id": "O90000002", "reason_codes": "INVALID_ALLOWED_VALUE", "rejection_reason": "order_status: Input should be 'PLACED', 'SHIPPED', 'DELIVERED', 'CANCELLED' or 'RETURNED' (value='SHIPPED_MAYBE')"}, {"entity_name": "orders", "source_file": "orders.csv", "row_no": 29, "record_id": "O90000003", "reason_codes": "INVALID_TIMESTAMP", "rejection_reason": "order_date: Value error, timestamp must match %Y-%m-%d %H:%M:%S (value='31/02/2024')"}, {"entity_name": "products", "source_file": "products.csv", "row_no": 17, "record_id": "P900001", "reason_codes": "NEGATIVE_VALUE", "rejection_reason": "unit_price: must be greater than or equal to 0 (value='-499.00')"}, {"entity_name": "products", "source_file": "products.csv", "row_no": 18, "record_id": "P900002", "reason_codes": "MISSING_REQUIRED_FIELD", "rejection_reason": "product_name: missing required value (value='')"}, {"entity_name": "products", "source_file": "products.csv", "row_no": 19, "record_id": "P900003", "reason_codes": "INVALID_NUMBER", "rejection_reason": "unit_price: must be a plain decimal number such as 1499.00 (value='abc')"}], "entity_quality": [{"entity": "customers", "rejected": 6}, {"entity": "order_items", "rejected": 13}, {"entity": "orders", "rejected": 3}, {"entity": "products", "rejected": 3}], "reconciliation": [{"run_id": "run_20261111T050836Z_57ffae4e", "check_name": "customers: input = valid + rejected + skipped", "severity": "CRITICAL", "status": "PASS", "source_value": "1000", "target_value": "1000", "difference": "0", "explanation": "file records=1000; valid=1000, rejected=0, skipped=0"}, {"run_id": "run_20261111T050836Z_57ffae4e", "check_name": "customers: rejected rows = quarantine rows", "severity": "CRITICAL", "status": "PASS", "source_value": "0", "target_value": "0", "difference": "0", "explanation": "every rejected raw record has exactly one ops.rejected_records row"}, {"run_id": "run_20261111T050836Z_57ffae4e", "check_name": "products: input = valid + rejected + skipped", "severity": "CRITICAL", "status": "PASS", "source_value": "200", "target_value": "200", "difference": "0", "explanation": "file records=200; valid=200, rejected=0, skipped=0"}, {"run_id": "run_20261111T050836Z_57ffae4e", "check_name": "products: rejected rows = quarantine rows", "severity": "CRITICAL", "status": "PASS", "source_value": "0", "target_value": "0", "difference": "0", "explanation": "every rejected raw record has exactly one ops.rejected_records row"}, {"run_id": "run_20261111T050836Z_57ffae4e", "check_name": "orders: input = valid + rejected + skipped", "severity": "CRITICAL", "status": "PASS", "source_value": "10000", "target_value": "10000", "difference": "0", "explanation": "file records=10000; valid=10000, rejected=0, skipped=0"}, {"run_id": "run_20261111T050836Z_57ffae4e", "check_name": "orders: rejected rows = quarantine rows", "severity": "CRITICAL", "status": "PASS", "source_value": "0", "target_value": "0", "difference": "0", "explanation": "every rejected raw record has exactly one ops.rejected_records row"}, {"run_id": "run_20261111T050836Z_57ffae4e", "check_name": "order_items: input = valid + rejected + skipped", "severity": "CRITICAL", "status": "PASS", "source_value": "24994", "target_value": "24994", "difference": "0", "explanation": "file records=24994; valid=24994, rejected=0, skipped=0"}, {"run_id": "run_20261111T050836Z_57ffae4e", "check_name": "order_items: rejected rows = quarantine rows", "severity": "CRITICAL", "status": "PASS", "source_value": "0", "target_value": "0", "difference": "0", "explanation": "every rejected raw record has exactly one ops.rejected_records row"}, {"run_id": "run_20261111T050836Z_57ffae4e", "check_name": "order_items: source record count", "severity": "INFO", "status": "INFO", "source_value": "24994", "target_value": "24994", "difference": "0", "explanation": "records read from order_items.csv"}, {"run_id": "run_20261111T050836Z_57ffae4e", "check_name": "order_items: rejected record count", "severity": "INFO", "status": "INFO", "source_value": "0", "target_value": "0", "difference": "0", "explanation": "quarantined in ops.rejected_records"}, {"run_id": "run_20261111T050836Z_57ffae4e", "check_name": "valid source order items = fact rows present", "severity": "CRITICAL", "status": "PASS", "source_value": "24994", "target_value": "24994", "difference": "0", "explanation": "each valid order line of this run exists exactly once in dw.fact_sales"}, {"run_id": "run_20261111T050836Z_57ffae4e", "check_name": "total gross sales (valid source vs fact)", "severity": "CRITICAL", "status": "PASS", "source_value": "171084686.49", "target_value": "171084686.49", "difference": "0.00", "explanation": "sum(quantity * unit_price), exact NUMERIC"}, {"run_id": "run_20261111T050836Z_57ffae4e", "check_name": "total discounts (valid source vs fact)", "severity": "CRITICAL", "status": "PASS", "source_value": "8872329.05", "target_value": "8872329.05", "difference": "0.00", "explanation": "sum(discount_amount)"}, {"run_id": "run_20261111T050836Z_57ffae4e", "check_name": "total net revenue (valid source vs fact)", "severity": "CRITICAL", "status": "PASS", "source_value": "162212357.44", "target_value": "162212357.44", "difference": "0.00", "explanation": "sum(gross - discount)"}, {"run_id": "run_20261111T050836Z_57ffae4e", "check_name": "duplicate records quarantined (all entities)", "severity": "INFO", "status": "INFO", "source_value": "0", "target_value": "0", "difference": "0", "explanation": "exact duplicates: first copy kept, later copies rejected; conflicting duplicates: all copies rejected"}, {"run_id": "run_20261111T050836Z_57ffae4e", "check_name": "fact rows inserted / updated / unchanged", "severity": "INFO", "status": "INFO", "source_value": "0 / 0 / 24994", "target_value": "0 / 0 / 24994", "difference": "", "explanation": "unchanged = events already loaded by an earlier run with identical content (idempotent re-run, not re-inserted); updated = corrected events or rebuilt lines of changed orders"}, {"run_id": "run_20261111T050836Z_57ffae4e", "check_name": "missing dimension references", "severity": "CRITICAL", "status": "PASS", "source_value": "0", "target_value": "0", "difference": "0", "explanation": "facts whose customer/product/date key has no dimension row"}, {"run_id": "run_20261111T050836Z_57ffae4e", "check_name": "facts linked to wrong dimension version / date", "severity": "CRITICAL", "status": "PASS", "source_value": "0", "target_value": "0", "difference": "0", "explanation": "point-in-time check over the whole fact table: order timestamp inside the version's effective range, business keys match the source"}, {"run_id": "run_20261111T050836Z_57ffae4e", "check_name": "warehouse total: source order items = fact rows", "severity": "CRITICAL", "status": "PASS", "source_value": "25054", "target_value": "25054", "difference": "0", "explanation": "all-time: source.order_items vs dw.fact_sales"}, {"run_id": "run_20261111T050836Z_57ffae4e", "check_name": "warehouse total: source net revenue = fact net revenue", "severity": "CRITICAL", "status": "PASS", "source_value": "162314314.84", "target_value": "162314314.84", "difference": "0.00", "explanation": "all-time, exact NUMERIC"}, {"run_id": "run_20261111T050836Z_57ffae4e", "check_name": "business keys with more than one current version", "severity": "CRITICAL", "status": "PASS", "source_value": "0", "target_value": "0", "difference": "0", "explanation": "SCD2 integrity"}], "performance": {"generated_at": "2026-11-11T05:49:38+00:00", "postgres": "18.6 (Debian 18.6-1.pgdg13+2)", "rows": [{"order_items": 1000, "orders": 403, "generate_s": 0.424, "extract_s": 0.056, "validate_s": 0.224, "transform_s": 0.218, "load_s": 0.95, "reconcile_s": 0.809, "total_s": 2.392, "rows_per_second": 418.1, "rerun_s": 2.164, "rerun_inserted": 0, "status": "SUCCESS/SUCCESS"}, {"order_items": 10000, "orders": 4043, "generate_s": 0.186, "extract_s": 0.229, "validate_s": 1.062, "transform_s": 0.883, "load_s": 3.203, "reconcile_s": 0.342, "total_s": 5.853, "rows_per_second": 1708.5, "rerun_s": 4.007, "rerun_inserted": 0, "status": "SUCCESS/SUCCESS"}, {"order_items": 100000, "orders": 40120, "generate_s": 1.869, "extract_s": 0.776, "validate_s": 5.401, "transform_s": 4.385, "load_s": 17.952, "reconcile_s": 2.199, "total_s": 30.861, "rows_per_second": 3240.3, "rerun_s": 24.353, "rerun_inserted": 0, "status": "SUCCESS/SUCCESS"}, {"order_items": 1000000, "orders": 400737, "generate_s": 21.957, "extract_s": 10.551, "validate_s": 67.906, "transform_s": 56.745, "load_s": 237.514, "reconcile_s": 15.133, "total_s": 388.448, "rows_per_second": 2574.3, "rerun_s": 201.66, "rerun_inserted": 0, "status": "SUCCESS/SUCCESS"}], "experiment": {"rows": 10000, "insert_s": 19.596, "copy_s": 0.388}}, "history": {"database": "ecommerce_dw_demo", "runs": [{"run_id": "run_20261111T050848Z_58796fc4", "status": "SUCCESS", "input_count": 8, "rejected_count": 0, "inserted_count": 2, "updated_count": 0}, {"run_id": "run_20261111T050849Z_41b92c9c", "status": "SUCCESS", "input_count": 3, "rejected_count": 0, "inserted_count": 1, "updated_count": 0}, {"run_id": "run_20261111T050849Z_f948cdc5", "status": "SUCCESS", "input_count": 5, "rejected_count": 0, "inserted_count": 1, "updated_count": 1}, {"run_id": "run_20261111T050850Z_17b8ca65", "status": "SUCCESS", "input_count": 3, "rejected_count": 1, "inserted_count": 1, "updated_count": 0}], "customers": [{"customer_key": 1, "customer_id": "C1", "city": "Hyderabad", "state": "Telangana", "effective_start_date": "1900-01-01 00:00:00", "effective_end_date": "2024-06-01 00:00:00", "is_current": false}, {"customer_key": 3, "customer_id": "C1", "city": "Chennai", "state": "Tamil Nadu", "effective_start_date": "2024-06-01 00:00:00", "effective_end_date": "9999-12-31 00:00:00", "is_current": true}, {"customer_key": 2, "customer_id": "C2", "city": "Bengaluru", "state": "Karnataka", "effective_start_date": "1900-01-01 00:00:00", "effective_end_date": "9999-12-31 00:00:00", "is_current": true}], "products": [{"product_key": 1, "product_id": "P1", "category": "Electronics", "brand": "Samsung", "effective_start_date": "1900-01-01 00:00:00", "effective_end_date": "2024-05-01 00:00:00", "is_current": false}, {"product_key": 3, "product_id": "P1", "category": "Mobiles", "brand": "Samsung", "effective_start_date": "2024-05-01 00:00:00", "effective_end_date": "9999-12-31 00:00:00", "is_current": true}, {"product_key": 2, "product_id": "P2", "category": "Books", "brand": "Penguin", "effective_start_date": "1900-01-01 00:00:00", "effective_end_date": "9999-12-31 00:00:00", "is_current": true}], "facts": [{"order_item_id": "OI1", "order_id": "O1", "date_key": 20240310, "customer_key": 1, "city": "Hyderabad", "product_key": 1, "category": "Electronics", "quantity": 2, "net_revenue": 1900.0}, {"order_item_id": "OI2", "order_id": "O2", "date_key": 20240312, "customer_key": 2, "city": "Bengaluru", "product_key": 2, "category": "Books", "quantity": 1, "net_revenue": 500.0}, {"order_item_id": "OI3", "order_id": "O3", "date_key": 20240715, "customer_key": 3, "city": "Chennai", "product_key": 3, "category": "Mobiles", "quantity": 1, "net_revenue": 950.0}, {"order_item_id": "OI4", "order_id": "O4", "date_key": 20240420, "customer_key": 1, "city": "Hyderabad", "product_key": 1, "category": "Electronics", "quantity": 3, "net_revenue": 2850.0}, {"order_item_id": "OI6", "order_id": "O5", "date_key": 20240801, "customer_key": 2, "city": "Bengaluru", "product_key": 2, "category": "Books", "quantity": 2, "net_revenue": 980.0}], "rejects": [{"source_record_id": "OI5", "reason_codes": "UNKNOWN_PRODUCT_REFERENCE", "rejection_reason": "product_id 'P999' not found among valid products"}]}}</script>
+<script>
+const D = JSON.parse(document.getElementById('data').textContent);
+const inr = new Intl.NumberFormat('en-IN', {style: 'currency', currency: 'INR', maximumFractionDigits: 0});
+const inr2 = new Intl.NumberFormat('en-IN', {style: 'currency', currency: 'INR', minimumFractionDigits: 2, maximumFractionDigits: 2});
+const num = new Intl.NumberFormat('en-IN');
+const compact = v => { const a = Math.abs(v);
+  if (a >= 1e7) return '₹' + (v / 1e7).toFixed(a >= 1e8 ? 0 : 1) + ' Cr';
+  if (a >= 1e5) return '₹' + (v / 1e5).toFixed(a >= 1e6 ? 0 : 1) + ' L';
+  if (a >= 1e3) return '₹' + (v / 1e3).toFixed(0) + 'K';
+  return '₹' + Math.round(v); };
+const NS = 'http://www.w3.org/2000/svg';
+const el = (tag, attrs = {}, parent) => { const n = document.createElementNS(NS, tag);
+  for (const [k, v] of Object.entries(attrs)) n.setAttribute(k, v); if (parent) parent.appendChild(n); return n; };
+const h = (tag, cls, html) => { const n = document.createElement(tag); if (cls) n.className = cls;
+  if (html !== undefined) n.innerHTML = html; return n; };
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const tip = document.getElementById('tip');
+function showTip(evt, title, lines) {
+  tip.innerHTML = '<b>' + esc(title) + '</b>' + lines.map(esc).join('<br>');
+  tip.style.display = 'block';
+  const x = Math.min(evt.clientX + 14, window.innerWidth - tip.offsetWidth - 8);
+  const y = Math.min(evt.clientY + 14, window.innerHeight - tip.offsetHeight - 8);
+  tip.style.left = x + 'px'; tip.style.top = y + 'px';
+}
+const hideTip = () => { tip.style.display = 'none'; };
+
+function niceMax(v) { if (v <= 0) return 1; const p = Math.pow(10, Math.floor(Math.log10(v)));
+  for (const m of [1, 2, 2.5, 5, 10]) if (m * p >= v) return m * p; return 10 * p; }
+
+/* Horizontal bar chart - one series, value labels at bar ends, hover tooltip. */
+function barChart(items, opts) {
+  const W = 620, rowH = 28, left = opts.labelWidth || 160, right = 76, top = 4;
+  const H = top + items.length * rowH + 22;
+  const svg = el('svg', {viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': opts.title});
+  const max = niceMax(Math.max(...items.map(d => d.value), 0));
+  const x = v => left + (W - left - right) * (v / max);
+  for (let i = 0; i <= 4; i++) {
+    const gx = x(max * i / 4);
+    el('line', {x1: gx, x2: gx, y1: top, y2: H - 20, stroke: 'var(--grid)', 'stroke-width': 1}, svg);
+    el('text', {x: gx, y: H - 6, 'text-anchor': 'middle', class: 'tick'}, svg).textContent = opts.tick(max * i / 4);
+  }
+  items.forEach((d, i) => {
+    const y = top + i * rowH, bh = 16, by = y + (rowH - bh) / 2, w = Math.max(x(d.value) - left, 2);
+    const label = el('text', {x: left - 8, y: by + bh / 2 + 4, 'text-anchor': 'end'}, svg);
+    label.textContent = d.label.length > 24 ? d.label.slice(0, 23) + '…' : d.label;
+    el('path', {d: `M${left},${by} h${w - 4} a4,4 0 0 1 4,4 v${bh - 8} a4,4 0 0 1 -4,4 h${-(w - 4)} z`,
+                fill: d.color || 'var(--series-1)'}, svg);
+    el('text', {x: left + w + 6, y: by + bh / 2 + 4, style: 'fill:var(--ink)'}, svg).textContent = opts.label(d.value);
+    const hit = el('rect', {x: 0, y, width: W, height: rowH, fill: 'transparent'}, svg);
+    hit.addEventListener('mousemove', e => { hit.setAttribute('fill', 'var(--hover)'); showTip(e, d.label, d.tip || [opts.label(d.value)]); });
+    hit.addEventListener('mouseleave', () => { hit.setAttribute('fill', 'transparent'); hideTip(); });
+  });
+  el('line', {x1: left, x2: left, y1: top, y2: H - 20, stroke: 'var(--axis)', 'stroke-width': 1}, svg);
+  return svg;
+}
+
+/* Line chart with area wash, crosshair and tooltip. */
+function lineChart(points, opts) {
+  const W = 1100, H = 300, L = 64, R = 16, T = 12, B = 34;
+  const svg = el('svg', {viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': opts.title});
+  const max = niceMax(Math.max(...points.map(p => p.value), 0));
+  const x = i => L + (W - L - R) * (points.length === 1 ? 0.5 : i / (points.length - 1));
+  const y = v => T + (H - T - B) * (1 - v / max);
+  for (let i = 0; i <= 4; i++) {
+    const gy = y(max * i / 4);
+    el('line', {x1: L, x2: W - R, y1: gy, y2: gy, stroke: i ? 'var(--grid)' : 'var(--axis)', 'stroke-width': 1}, svg);
+    el('text', {x: L - 8, y: gy + 4, 'text-anchor': 'end', class: 'tick'}, svg).textContent = opts.tick(max * i / 4);
+  }
+  const step = Math.ceil(points.length / 12);
+  points.forEach((p, i) => { if (i % step === 0)
+    el('text', {x: x(i), y: H - 12, 'text-anchor': 'middle', class: 'tick'}, svg).textContent = p.short; });
+  const d = points.map((p, i) => (i ? 'L' : 'M') + x(i) + ',' + y(p.value)).join(' ');
+  el('path', {d: d + ` L${x(points.length - 1)},${y(0)} L${x(0)},${y(0)} Z`, fill: 'var(--series-1)', opacity: 0.08}, svg);
+  el('path', {d, fill: 'none', stroke: 'var(--series-1)', 'stroke-width': 2, 'stroke-linejoin': 'round'}, svg);
+  const cross = el('line', {y1: T, y2: H - B, stroke: 'var(--axis)', 'stroke-width': 1, visibility: 'hidden'}, svg);
+  const dot = el('circle', {r: 5, fill: 'var(--series-1)', stroke: 'var(--surface)', 'stroke-width': 2, visibility: 'hidden'}, svg);
+  const hit = el('rect', {x: L, y: T, width: W - L - R, height: H - T - B, fill: 'transparent'}, svg);
+  hit.addEventListener('mousemove', e => {
+    const box = svg.getBoundingClientRect(); const sx = (e.clientX - box.left) * W / box.width;
+    const i = Math.max(0, Math.min(points.length - 1, Math.round((sx - L) / ((W - L - R) / Math.max(points.length - 1, 1)))));
+    const p = points[i];
+    cross.setAttribute('x1', x(i)); cross.setAttribute('x2', x(i)); cross.setAttribute('visibility', 'visible');
+    dot.setAttribute('cx', x(i)); dot.setAttribute('cy', y(p.value)); dot.setAttribute('visibility', 'visible');
+    showTip(e, p.label, p.tip);
+  });
+  hit.addEventListener('mouseleave', () => { cross.setAttribute('visibility', 'hidden'); dot.setAttribute('visibility', 'hidden'); hideTip(); });
+  return svg;
+}
+
+/* Table builder: cols = [{key, label, fmt, num, wrap, html}] */
+function table(rows, cols) {
+  if (!rows.length) return h('div', 'empty', 'No rows');
+  const wrap = h('div', 'table-wrap'), t = h('table');
+  t.innerHTML = '<thead><tr>' + cols.map(c => `<th class="${c.num ? 'num' : ''}">${esc(c.label)}</th>`).join('') + '</tr></thead>';
+  const body = h('tbody');
+  rows.forEach(r => { const tr = h('tr');
+    tr.innerHTML = cols.map(c => { const v = r[c.key]; const s = c.html ? c.html(v, r) : esc(c.fmt ? c.fmt(v, r) : v);
+      return `<td class="${c.num ? 'num' : ''}${c.wrap ? ' wrap' : ''}">${s}</td>`; }).join('');
+    body.appendChild(tr); });
+  t.appendChild(body); wrap.appendChild(t); return wrap;
+}
+
+/* Card with Chart | Table toggle (every chart has a table view). */
+function card(title, desc, chartNode, tableNode, wide) {
+  const c = h('div', 'card' + (wide ? ' wide' : ''));
+  const head = h('div', 'card-head'); head.appendChild(h('h2', '', esc(title)));
+  const body = h('div');
+  if (chartNode && tableNode) {
+    const tg = h('div', 'toggle'); const bc = h('button', '', 'Chart'), bt = h('button', '', 'Table');
+    const set = showChart => { bc.setAttribute('aria-pressed', showChart); bt.setAttribute('aria-pressed', !showChart);
+      body.replaceChildren(showChart ? chartNode : tableNode); };
+    bc.onclick = () => set(true); bt.onclick = () => set(false); tg.append(bc, bt); head.appendChild(tg); set(true);
+  } else { body.appendChild(chartNode || tableNode); }
+  c.appendChild(head); if (desc) c.appendChild(h('p', 'desc', esc(desc))); c.appendChild(body); return c;
+}
+const ICON = {
+  revenue: '<path d="M6 3h12M6 8h12M6 13l8.5 8M6 13h3a4.5 4.5 0 0 0 0-9"/>',
+  cart: '<circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/>',
+  receipt: '<path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/>',
+  box: '<path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5M12 22V12"/>',
+  users: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>',
+  db: '<ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14a9 3 0 0 0 18 0V5"/><path d="M3 12a9 3 0 0 0 18 0"/>',
+  chart: '<path d="M3 3v18h18"/><path d="M18 17V9M13 17V5M8 17v-3"/>',
+  shield: '<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/>',
+  flow: '<rect width="8" height="8" x="3" y="3" rx="2"/><path d="M7 11v4a2 2 0 0 0 2 2h4"/><rect width="8" height="8" x="13" y="13" rx="2"/>',
+  gauge: '<path d="m12 14 4-4"/><path d="M3.34 19a10 10 0 1 1 17.32 0"/>',
+  history: '<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5M12 7v5l4 2"/>',
+  alert: '<path d="M12 9v4M12 17h.01"/><circle cx="12" cy="12" r="10"/>',
+  check: '<circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/>',
+};
+const svgIcon = name => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICON[name] || ICON.chart}</svg>`;
+const TONE = {brand: '#2a78d6', good: '#10b981', bad: '#f43f5e', neutral: '#334155', violet: '#8b5cf6', amber: '#f59e0b'};
+const tile = (label, value, note, icon = 'chart', tone = 'brand') => { const t = h('div', 'tile');
+  t.innerHTML = `<div class="row"><div class="label">${esc(label)}</div><span class="chip" style="background:${TONE[tone]}">${svgIcon(icon)}</span></div>`
+    + `<div class="value">${esc(value)}</div>` + (note ? `<div class="note">${esc(note)}</div>` : ''); return t; };
+const pageTitle = (root, eyebrow, title) => { root.appendChild(h('p', 'eyebrow', esc(eyebrow))); root.appendChild(h('h1', 'pagetitle', esc(title))); };
+const badge = s => { const ok = s === 'PASS' || s === 'SUCCESS', bad = s === 'FAIL' || s === 'FAILED' || s === 'RECONCILIATION_FAILED';
+  return `<span class="badge ${ok ? 'ok' : bad ? 'bad' : 'info'}"><i></i>${ok ? '✓ ' : bad ? '✕ ' : ''}${esc(s)}</span>`; };
+const money = v => v == null ? '' : inr2.format(v);
+const int = v => v == null ? '' : num.format(v);
+
+/* ---------- Sales tab ---------- */
+function salesTab(root) {
+  const k = D.kpis;
+  const cr = k.net_revenue >= 1e7 ? '₹' + (k.net_revenue / 1e7).toFixed(2) + ' Cr' : inr.format(k.net_revenue);
+  const latest = D.runs && D.runs.length ? D.runs[0] : null;
+  const hero = h('div', 'hero');
+  hero.innerHTML = `<div style="position:relative;z-index:1;min-width:0"><p class="k">Net revenue · recognised orders</p><p class="big">${esc(cr)}</p>
+      <p class="s">${esc(inr2.format(k.net_revenue))} from <b style="color:#fff">${esc(int(k.orders))}</b> orders. Cancelled and returned orders are excluded.</p></div>
+    <div class="panel"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><b>Latest pipeline run</b>${latest ? badge(latest.status) : ''}</div>
+      ${latest ? `<dl><div style="grid-column:1/-1;min-width:0"><dt>Run ID</dt><dd style="font-family:Consolas,monospace;font-size:12px;overflow:hidden;text-overflow:ellipsis">${esc(latest.run_id)}</dd></div>
+        <div><dt>Duration</dt><dd>${Number(latest.seconds || 0).toFixed(2)} s</dd></div><div><dt>Records in</dt><dd>${esc(int(latest.input_count))}</dd></div>
+        <div><dt>Rejected</dt><dd>${esc(int(latest.rejected_count))}</dd></div><div><dt>New fact rows</dt><dd>${esc(int(latest.inserted_count))}</dd></div></dl>` : '<p class="s">No runs yet.</p>'}</div>`;
+  pageTitle(root, 'Overview', 'Sales analytics');
+  root.appendChild(hero);
+  const tiles = h('div', 'tiles');
+  tiles.append(tile('Net revenue', cr, 'excl. cancelled / returned', 'revenue', 'brand'),
+    tile('Orders', int(k.orders), 'recognised orders', 'cart', 'violet'),
+    tile('Average order value', k.aov == null ? '–' : inr.format(k.aov), 'per order, not per line', 'receipt', 'amber'),
+    tile('Units sold', int(k.units), null, 'box', 'good'),
+    tile('Customers', int(k.customers), `${int(k.products)} products`, 'users', 'neutral'), tile('Order lines', int(k.fact_rows), 'rows in fact_sales', 'db', 'brand'));
+  root.appendChild(tiles);
+  const grid = h('div', 'grid'); root.appendChild(grid);
+
+  const months = D.monthly.map(m => ({label: `${m.month_name} ${m.year}`, short: `${m.month_name.slice(0, 3)} ${String(m.year).slice(2)}`,
+    value: m.net_revenue, tip: [inr.format(m.net_revenue), `${int(m.orders)} orders`,
+    m.mom_growth_pct == null ? 'first month' : `${m.mom_growth_pct > 0 ? '+' : ''}${m.mom_growth_pct}% vs previous month`]}));
+  grid.appendChild(card('Monthly net revenue', 'Recognised revenue per calendar month (dim_date).',
+    months.length ? lineChart(months, {title: 'Monthly net revenue', tick: compact}) : h('div', 'empty', 'No data'),
+    table(D.monthly, [{key: 'year', label: 'Year'}, {key: 'month_name', label: 'Month'}, {key: 'orders', label: 'Orders', num: 1, fmt: int},
+      {key: 'net_revenue', label: 'Net revenue', num: 1, fmt: money}, {key: 'mom_growth_pct', label: 'MoM %', num: 1}]), true));
+
+  const bars = (rows, labelKey, valueKey, tipFn) => rows.map(r => ({label: String(r[labelKey]), value: r[valueKey], tip: tipFn(r)}));
+  grid.appendChild(card('Revenue by year', 'Year-over-year growth in the tooltip and table.',
+    barChart(bars(D.yearly, 'year', 'net_revenue', r => [inr.format(r.net_revenue), `${int(r.orders)} orders`,
+      r.yoy_growth_pct == null ? 'first year' : `${r.yoy_growth_pct > 0 ? '+' : ''}${r.yoy_growth_pct}% YoY`]), {title: 'Revenue by year', tick: compact, label: compact, labelWidth: 60}),
+    table(D.yearly, [{key: 'year', label: 'Year'}, {key: 'orders', label: 'Orders', num: 1, fmt: int}, {key: 'units_sold', label: 'Units', num: 1, fmt: int},
+      {key: 'net_revenue', label: 'Net revenue', num: 1, fmt: money}, {key: 'yoy_growth_pct', label: 'YoY %', num: 1}])));
+  grid.appendChild(card('Revenue by category', 'Category valid at the time of sale (SCD2).',
+    barChart(bars(D.category, 'category', 'net_revenue', r => [inr.format(r.net_revenue), `${r.revenue_share_pct}% of revenue`, `${int(r.units_sold)} units`]),
+      {title: 'Revenue by category', tick: compact, label: compact}),
+    table(D.category, [{key: 'category', label: 'Category'}, {key: 'orders', label: 'Orders', num: 1, fmt: int}, {key: 'units_sold', label: 'Units', num: 1, fmt: int},
+      {key: 'net_revenue', label: 'Net revenue', num: 1, fmt: money}, {key: 'revenue_share_pct', label: 'Share %', num: 1}])));
+  const cities = D.city.slice(0, 10);
+  grid.appendChild(card('Top 10 cities by revenue', 'City where the customer lived when they bought (SCD2).',
+    barChart(bars(cities, 'city', 'net_revenue', r => [inr.format(r.net_revenue), r.state, `${int(r.customers)} customers · ${int(r.orders)} orders`]),
+      {title: 'Top cities', tick: compact, label: compact, labelWidth: 120}),
+    table(D.city, [{key: 'city', label: 'City'}, {key: 'state', label: 'State'}, {key: 'customers', label: 'Customers', num: 1, fmt: int},
+      {key: 'orders', label: 'Orders', num: 1, fmt: int}, {key: 'net_revenue', label: 'Net revenue', num: 1, fmt: money}])));
+  grid.appendChild(card('Revenue by payment method', null,
+    barChart(bars(D.payment, 'payment_method', 'net_revenue', r => [inr.format(r.net_revenue), `${r.revenue_share_pct}% of revenue`, `AOV ${inr.format(r.average_order_value)}`]),
+      {title: 'Payment methods', tick: compact, label: compact, labelWidth: 130}),
+    table(D.payment, [{key: 'payment_method', label: 'Payment method'}, {key: 'orders', label: 'Orders', num: 1, fmt: int},
+      {key: 'net_revenue', label: 'Net revenue', num: 1, fmt: money}, {key: 'average_order_value', label: 'AOV', num: 1, fmt: money},
+      {key: 'revenue_share_pct', label: 'Share %', num: 1}])));
+  grid.appendChild(card('Orders by status', 'All statuses, counted per order.',
+    barChart(bars(D.status, 'order_status', 'orders', r => [`${int(r.orders)} orders (${r.pct_of_orders}%)`, `value ${inr.format(r.order_value)}`]),
+      {title: 'Orders by status', tick: int, label: int, labelWidth: 100}),
+    table(D.status, [{key: 'order_status', label: 'Status'}, {key: 'orders', label: 'Orders', num: 1, fmt: int}, {key: 'pct_of_orders', label: '% orders', num: 1},
+      {key: 'units', label: 'Units', num: 1, fmt: int}, {key: 'order_value', label: 'Order value', num: 1, fmt: money}])));
+  grid.appendChild(card('Customer segments (repeat buying)', null,
+    barChart(bars(D.segments, 'segment', 'net_revenue', r => [inr.format(r.net_revenue), `${int(r.customers)} customers`, `avg spend ${inr.format(r.avg_spend_per_customer)}`]),
+      {title: 'Customer segments', tick: compact, label: compact, labelWidth: 90}),
+    table(D.segments, [{key: 'segment', label: 'Segment'}, {key: 'customers', label: 'Customers', num: 1, fmt: int}, {key: 'orders', label: 'Orders', num: 1, fmt: int},
+      {key: 'net_revenue', label: 'Net revenue', num: 1, fmt: money}, {key: 'avg_spend_per_customer', label: 'Avg spend', num: 1, fmt: money}])));
+  grid.appendChild(card('Top 10 products (units sold)', null, null,
+    table(D.top_products, [{key: 'product_id', label: 'Product'}, {key: 'product_name', label: 'Name'}, {key: 'category', label: 'Category'},
+      {key: 'units_sold', label: 'Units', num: 1, fmt: int}, {key: 'orders', label: 'Orders', num: 1, fmt: int}, {key: 'net_revenue', label: 'Net revenue', num: 1, fmt: money}])));
+  grid.appendChild(card('Top 10 customers by spend', null, null,
+    table(D.top_customers, [{key: 'customer_id', label: 'Customer'}, {key: 'customer_name', label: 'Name'}, {key: 'current_city', label: 'Current city'},
+      {key: 'orders', label: 'Orders', num: 1, fmt: int}, {key: 'total_spent', label: 'Total spent', num: 1, fmt: money}])));
+  if (D.scd_history.length) grid.appendChild(card('Customer history (SCD Type 2 versions)', 'Sales per customer version - old sales stay with the old city.', null,
+    table(D.scd_history, [{key: 'customer_id', label: 'Customer'}, {key: 'customer_key', label: 'Key', num: 1}, {key: 'city', label: 'City'},
+      {key: 'effective_start_date', label: 'Valid from'}, {key: 'effective_end_date', label: 'Valid to'},
+      {key: 'is_current', label: 'Current', fmt: v => v ? 'yes' : 'no'}, {key: 'order_lines', label: 'Lines', num: 1, fmt: int},
+      {key: 'net_revenue', label: 'Net revenue', num: 1, fmt: money}]), true));
+}
+
+/* ---------- Data quality tab ---------- */
+function qualityTab(root) {
+  pageTitle(root, 'Processing', 'Data quality');
+  const k = D.kpis, recon = D.reconciliation;
+  const crit = recon.filter(r => r.severity === 'CRITICAL'), passed = crit.filter(r => r.status === 'PASS').length;
+  const tiles = h('div', 'tiles');
+  tiles.append(tile('Rejected records (all runs)', int(k.rejected), null, 'alert', k.rejected ? 'bad' : 'neutral'), tile('Distinct reason codes', int(D.reasons.length), null, 'shield', 'amber'),
+    tile('Reconciliation (latest run)', crit.length ? `${passed} / ${crit.length}` : '–', 'critical checks passed', 'check', 'good'));
+  root.appendChild(tiles);
+  const grid = h('div', 'grid'); root.appendChild(grid);
+  grid.appendChild(card('Rejections by reason code', 'A record with several problems counts once per reason.',
+    D.reasons.length ? barChart(D.reasons.map(r => ({label: r.reason_code, value: r.records, tip: [`${int(r.records)} records`]})),
+      {title: 'Rejections by reason', tick: int, label: int, labelWidth: 200}) : h('div', 'empty', 'No rejected records'),
+    table(D.reasons, [{key: 'reason_code', label: 'Reason code'}, {key: 'records', label: 'Records', num: 1, fmt: int}])));
+  grid.appendChild(card('Rejected records by entity', null,
+    D.entity_quality.length ? barChart(D.entity_quality.map(r => ({label: r.entity, value: r.rejected, tip: [`${int(r.rejected)} rejected`]})),
+      {title: 'Rejected by entity', tick: int, label: int, labelWidth: 100}) : h('div', 'empty', 'No rejected records'),
+    table(D.entity_quality, [{key: 'entity', label: 'Entity'}, {key: 'rejected', label: 'Rejected', num: 1, fmt: int}])));
+  grid.appendChild(card('Reconciliation checks - latest run', recon.length ? `Run ${recon[0].run_id}` : 'No report yet', null,
+    table(recon, [{key: 'status', label: 'Status', html: badge}, {key: 'severity', label: 'Severity'}, {key: 'check_name', label: 'Check'},
+      {key: 'source_value', label: 'Source', num: 1}, {key: 'target_value', label: 'Target', num: 1}, {key: 'explanation', label: 'Explanation', wrap: 1}]), true));
+  grid.appendChild(card('Quarantined records (latest 100)', 'ops.rejected_records - original values are kept as JSON in the database.', null,
+    table(D.rejects, [{key: 'entity_name', label: 'Entity'}, {key: 'source_file', label: 'File'}, {key: 'row_no', label: 'Line', num: 1},
+      {key: 'record_id', label: 'Record id'}, {key: 'reason_codes', label: 'Reason codes'}, {key: 'rejection_reason', label: 'Details', wrap: 1}]), true));
+}
+
+/* ---------- Pipeline runs tab ---------- */
+function pipelineTab(root) {
+  pageTitle(root, 'Processing', 'Pipeline runs');
+  const runs = D.runs, ok = runs.filter(r => r.status === 'SUCCESS').length;
+  const tiles = h('div', 'tiles');
+  tiles.append(tile('Pipeline runs', int(D.kpis.runs), null, 'flow', 'brand'), tile('Successful', int(D.kpis.runs_ok), null, 'check', 'good'),
+    tile('Latest run', runs.length ? runs[0].status : '–', runs.length ? runs[0].start_time : '', 'history', 'violet'));
+  root.appendChild(tiles);
+  const grid = h('div', 'grid'); root.appendChild(grid);
+  const recent = runs.slice(0, 12).reverse();
+  grid.appendChild(card('Run duration (latest runs)', 'Seconds per run; hover for counts.',
+    recent.length ? barChart(recent.map(r => ({label: r.run_id.replace(/^run_/, '').slice(0, 22), value: Number(r.seconds || 0),
+      color: r.status === 'SUCCESS' ? 'var(--series-1)' : 'var(--critical)',
+      tip: [`${r.status}`, `${Number(r.seconds || 0).toFixed(2)} s`, `input ${int(r.input_count)} · rejected ${int(r.rejected_count)}`, `inserted ${int(r.inserted_count)} · updated ${int(r.updated_count)}`]})),
+      {title: 'Run durations', tick: v => v.toFixed(1) + 's', label: v => v.toFixed(2) + 's', labelWidth: 170}) : h('div', 'empty', 'No runs'),
+    table(runs, [{key: 'run_id', label: 'Run'}, {key: 'status', label: 'Status', html: badge}, {key: 'seconds', label: 'Seconds', num: 1}])));
+  grid.appendChild(card('Pipeline run history (ops.pipeline_runs)', `${ok} of ${runs.length} shown runs succeeded.`, null,
+    table(runs, [{key: 'run_id', label: 'Run id'}, {key: 'status', label: 'Status', html: badge}, {key: 'start_time', label: 'Started'},
+      {key: 'seconds', label: 'Seconds', num: 1}, {key: 'input_count', label: 'Input', num: 1, fmt: int}, {key: 'valid_count', label: 'Valid', num: 1, fmt: int},
+      {key: 'rejected_count', label: 'Rejected', num: 1, fmt: int}, {key: 'inserted_count', label: 'Inserted', num: 1, fmt: int},
+      {key: 'updated_count', label: 'Updated', num: 1, fmt: int}, {key: 'error_message', label: 'Error', wrap: 1}]), true));
+}
+
+/* ---------- Performance tab ---------- */
+function performanceTab(root) {
+  pageTitle(root, 'Insights', 'Performance');
+  const P = D.performance;
+  if (!P) { root.appendChild(h('div', 'empty', 'No benchmark yet - run: python -m src.cli benchmark')); return; }
+  const tiles = h('div', 'tiles'), largest = P.rows[P.rows.length - 1];
+  tiles.append(tile('Largest run', int(largest.order_items) + ' lines', `${largest.total_s.toFixed(1)} s end to end`),
+    tile('Throughput (largest)', int(Math.round(largest.rows_per_second)) + ' rows/s'),
+    tile('Idempotent re-runs', P.rows.every(r => r.rerun_inserted === 0) ? '0 duplicates' : 'CHECK', 'same files loaded twice'));
+  if (P.experiment) tiles.appendChild(tile('COPY vs row INSERT', (P.experiment.insert_s / P.experiment.copy_s).toFixed(0) + '× faster',
+    `${int(P.experiment.rows)} rows: ${P.experiment.copy_s}s vs ${P.experiment.insert_s}s`));
+  root.appendChild(tiles);
+  const grid = h('div', 'grid'); root.appendChild(grid);
+  grid.appendChild(card('Throughput by data size', 'Order lines per second, end to end.',
+    barChart(P.rows.map(r => ({label: int(r.order_items) + ' lines', value: r.rows_per_second, tip: [`${int(Math.round(r.rows_per_second))} rows/s`, `total ${r.total_s}s`]})),
+      {title: 'Throughput', tick: v => int(Math.round(v)), label: v => int(Math.round(v)) + '/s', labelWidth: 110}),
+    table(P.rows, [{key: 'order_items', label: 'Order lines', num: 1, fmt: int}, {key: 'rows_per_second', label: 'Rows/s', num: 1, fmt: v => int(Math.round(v))}])));
+  grid.appendChild(card('Where the time goes (largest size)', `${int(largest.order_items)} order lines - seconds per stage.`,
+    barChart(['extract', 'validate', 'transform', 'load', 'reconcile'].map(s => ({label: s, value: largest[s + '_s'], tip: [`${largest[s + '_s']} s`,
+      `${(100 * largest[s + '_s'] / largest.total_s).toFixed(0)}% of total`]})), {title: 'Stage timings', tick: v => v.toFixed(0) + 's', label: v => v.toFixed(1) + 's', labelWidth: 80}),
+    table(['extract', 'validate', 'transform', 'load', 'reconcile'].map(s => ({stage: s, seconds: largest[s + '_s']})),
+      [{key: 'stage', label: 'Stage'}, {key: 'seconds', label: 'Seconds', num: 1}])));
+  grid.appendChild(card('Benchmark results', `Measured ${P.generated_at} · PostgreSQL ${P.postgres}`, null,
+    table(P.rows, [{key: 'order_items', label: 'Order lines', num: 1, fmt: int}, {key: 'orders', label: 'Orders', num: 1, fmt: int},
+      {key: 'generate_s', label: 'Generate s', num: 1}, {key: 'extract_s', label: 'Extract s', num: 1}, {key: 'validate_s', label: 'Validate s', num: 1},
+      {key: 'transform_s', label: 'Transform s', num: 1}, {key: 'load_s', label: 'Load s', num: 1}, {key: 'reconcile_s', label: 'Reconcile s', num: 1},
+      {key: 'total_s', label: 'Total s', num: 1}, {key: 'rows_per_second', label: 'Rows/s', num: 1, fmt: v => int(Math.round(v))},
+      {key: 'rerun_s', label: 'Re-run s', num: 1}, {key: 'rerun_inserted', label: 'Re-run inserted', num: 1}, {key: 'status', label: 'Status'}]), true));
+}
+
+
+/* ---------- History & late data tab (scenario demo database) ---------- */
+function historyTab(root) {
+  pageTitle(root, 'Insights', 'History & late data');
+  const H = D.history;
+  if (!H) { root.appendChild(h('div', 'empty', 'No scenario data yet - run: python -m src.cli demo-scenarios')); return; }
+  root.appendChild(h('p', 'desc', 'Four small batches loaded in order into the isolated demo database ' + esc(H.database) +
+    '. Customer C1 moves from Hyderabad to Chennai on 1 Jun 2024, an April order arrives after the move, product P1 is ' +
+    're-categorised, and one line references an unknown product.'));
+  const grid = h('div', 'grid'); root.appendChild(grid);
+  const cur = v => v ? '<span class="badge ok"><i></i>current</span>' : '<span class="badge info"><i></i>expired</span>';
+  grid.appendChild(card('Batches loaded', null, null, table(H.runs, [{key: 'run_id', label: 'Run'}, {key: 'status', label: 'Status', html: badge},
+    {key: 'input_count', label: 'Input', num: 1}, {key: 'rejected_count', label: 'Rejected', num: 1},
+    {key: 'inserted_count', label: 'Inserted', num: 1}, {key: 'updated_count', label: 'Updated', num: 1}])));
+  grid.appendChild(card('Quarantined line', 'Unknown product: no fact row and no broken foreign key.', null,
+    table(H.rejects, [{key: 'source_record_id', label: 'Record'}, {key: 'reason_codes', label: 'Reason'},
+      {key: 'rejection_reason', label: 'Details', wrap: 1}])));
+  grid.appendChild(card('Customer versions (SCD Type 2)', 'The old version closes at the change instant and the new one starts there.', null,
+    table(H.customers, [{key: 'customer_key', label: 'Key', num: 1}, {key: 'customer_id', label: 'Customer'}, {key: 'city', label: 'City'},
+      {key: 'state', label: 'State'}, {key: 'effective_start_date', label: 'Valid from'}, {key: 'effective_end_date', label: 'Valid to'},
+      {key: 'is_current', label: 'Version', html: cur}]), true));
+  grid.appendChild(card('Product versions (SCD Type 2)', null, null,
+    table(H.products, [{key: 'product_key', label: 'Key', num: 1}, {key: 'product_id', label: 'Product'}, {key: 'category', label: 'Category'},
+      {key: 'brand', label: 'Brand'}, {key: 'effective_start_date', label: 'Valid from'}, {key: 'effective_end_date', label: 'Valid to'},
+      {key: 'is_current', label: 'Version', html: cur}]), true));
+  grid.appendChild(card('Each sale is linked to the version valid on its order date',
+    'OI4 (20 Apr, loaded last) still gets the Hyderabad customer and Electronics product versions. OI3 (15 Jul) gets Chennai and Mobiles.', null,
+    table(H.facts, [{key: 'order_item_id', label: 'Line'}, {key: 'order_id', label: 'Order'}, {key: 'date_key', label: 'Date key', num: 1},
+      {key: 'customer_key', label: 'Cust. key', num: 1}, {key: 'city', label: 'City at sale'}, {key: 'product_key', label: 'Prod. key', num: 1},
+      {key: 'category', label: 'Category at sale'}, {key: 'quantity', label: 'Qty', num: 1},
+      {key: 'net_revenue', label: 'Net revenue', num: 1, fmt: money}]), true));
+}
+
+/* ---------- Shell ---------- */
+document.getElementById('meta').textContent = `${D.database} · ${D.generated_at} · ${int(D.kpis.fact_rows)} fact rows`;
+document.getElementById('pilltext').textContent = `Snapshot ${D.generated_at}`;
+const TABS = [['sales', 'Sales analytics', salesTab, 'gauge', 'Revenue, products, customers and trends'],
+              ['quality', 'Data quality', qualityTab, 'shield', 'Rejected records and reconciliation'],
+              ['pipeline', 'Pipeline runs', pipelineTab, 'flow', 'Every run with its timings and counts'],
+              ['performance', 'Performance', performanceTab, 'chart', 'Benchmark results and bottlenecks'],
+              ['history', 'History & late data', historyTab, 'history', 'SCD Type 2 and late-arriving data']];
+const nav = document.getElementById('tabs');
+const select = (id) => {
+  const t = TABS.find(x => x[0] === id) || TABS[0];
+  nav.querySelectorAll('button').forEach(x => x.setAttribute('aria-selected', x.dataset.id === t[0]));
+  TABS.forEach(([other]) => document.getElementById('tab-' + other).hidden = other !== t[0]);
+  document.getElementById('toptitle').textContent = t[1];
+  document.getElementById('topdesc').textContent = t[4];
+  document.getElementById('topicon').innerHTML = svgIcon(t[3]);
+  document.body.classList.remove('nav-open'); hideTip();
+};
+TABS.forEach(([id, label, render, icon]) => {
+  const b = h('button', '', svgIcon(icon) + esc(label)); b.dataset.id = id; b.setAttribute('role', 'tab');
+  b.onclick = () => { select(id); if (location.hash !== '#' + id) history.replaceState(null, '', '#' + id); };
+  nav.appendChild(b); render(document.getElementById('tab-' + id));
+});
+const openFromHash = () => select((location.hash || '#sales').slice(1));
+window.addEventListener('hashchange', openFromHash); openFromHash();
+document.getElementById('menu').onclick = () => document.body.classList.toggle('nav-open');
+</script>
+</body>
+</html>

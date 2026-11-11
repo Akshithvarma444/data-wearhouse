@@ -1,0 +1,124 @@
+
+### total_revenue (1 row(s))
+ orders  order_lines  units_sold  gross_sales  discounts  net_revenue
+   8655        21643       32534 147579579.38 7651313.14 139928266.24
+
+### monthly_revenue (36 row(s))
+ year  month month_name  orders net_revenue mom_growth_pct
+ 2023      1    January     155  2524704.95           None
+ 2023      2   February     175  2579150.56           2.16
+ 2023      3      March     195  2539738.72          -1.53
+ 2023      4      April     178  2499720.98          -1.58
+ 2023      5        May     195  2955519.30          18.23
+ 2023      6       June     172  2954692.04          -0.03
+ 2023      7       July     202  3628489.10          22.80
+ 2023      8     August     218  3528951.61          -2.74
+ 2023      9  September     214  3914175.51          10.92
+ 2023     10    October     296  4275235.97           9.22
+ 2023     11   November     332  5660654.75          32.41
+ 2023     12   December     231  3818272.17         -32.55
+ 2024      1    January     188  3104439.32         -18.70
+ 2024      2   February     205  2398629.46         -22.74
+ 2024      3      March     221  3718388.44          55.02
+
+### yearly_revenue (3 row(s))
+ year  orders  units_sold net_revenue yoy_growth_pct
+ 2023    2563        9583 40879305.66           None
+ 2024    2976       11270 47999064.04          17.42
+ 2025    3116       11681 51049896.54           6.36
+
+### top_10_products (10 row(s))
+product_id                       product_name               category  units_sold  orders net_revenue
+   P000190        Himalaya Herbal Shampoo Max Beauty & Personal Care        1315     814   270959.45
+   P000072                  Arihant Novel Max                  Books        1190     763   354907.55
+   P000122      Scholastic Exam Guide Classic                  Books        1015     665  1285290.96
+   P000152              boAt LED Monitor Plus            Electronics         902     574  4167890.95
+   P000087          Adidas Winter Jacket Plus                Fashion         756     513  4241324.53
+   P000102 Arihant Children's Story Book Lite                  Books         677     459   417699.65
+   P000007 Penguin Children's Story Book Plus                  Books         640     424   165874.80
+   P000173          Bajaj Mixer Grinder Prime         Home & Kitchen         621     391  5039676.89
+   P000170         Cosco Cycling Helmet Prime       Sports & Fitness         616     391  4586926.67
+   P000114               Nivea Sunscreen Plus Beauty & Personal Care         590     376  1279263.45
+
+### category_revenue (7 row(s))
+              category  orders  units_sold net_revenue revenue_share_pct
+           Electronics    2373        4098 82294910.37             58.81
+        Home & Kitchen    2361        4048 25009798.00             17.87
+      Sports & Fitness    2939        5197 14167200.22             10.12
+               Fashion    1898        3182  6878600.04              4.92
+Beauty & Personal Care    3115        5548  5266436.25              3.76
+                 Books    3561        6563  3329315.65              2.38
+               Grocery    2283        3898  2982005.71              2.13
+
+### city_revenue (25 row(s))
+         city          state  customers  orders net_revenue
+    Bengaluru      Karnataka         80     875 14764707.02
+       Mumbai    Maharashtra         66     769 11938734.93
+      Chennai     Tamil Nadu         62     667 11175159.94
+    New Delhi          Delhi         75     726 11136057.58
+         Pune    Maharashtra         55     587  9846384.55
+    Hyderabad      Telangana         66     521  7833264.42
+      Kolkata    West Bengal         57     481  7554813.17
+    Ahmedabad        Gujarat         42     385  6329922.74
+      Lucknow  Uttar Pradesh         36     354  6226576.24
+Visakhapatnam Andhra Pradesh         28     346  6023316.11
+       Nagpur    Maharashtra         21     348  4816397.15
+       Indore Madhya Pradesh         22     289  4711906.87
+        Patna          Bihar         22     213  3693992.99
+   Coimbatore     Tamil Nadu         20     212  3677104.90
+       Jaipur      Rajasthan         26     243  3618797.81
+
+### top_10_customers (10 row(s))
+customer_id       customer_name  current_city  orders total_spent
+   C0000067        Vrishti Tank       Chennai      58  1197026.69
+   C0000251     Chandresh Devan     New Delhi      40   968104.36
+   C0000106     Sudiksha Cheema    Vijayawada      52   948997.96
+   C0000304         Vinaya Sule     Bengaluru      69   943955.93
+   C0000442         Faras Manne        Mumbai      40   899004.24
+   C0000850     Nidhi Chaudhari Visakhapatnam      32   864306.61
+   C0000827 Pooja Bhattacharyya          Pune      43   857542.64
+   C0000666        Qabil Karnik        Nagpur      63   847996.64
+   C0000248        Imaran Lanka     Bengaluru      40   846541.58
+   C0000181    Yadavi Natarajan Visakhapatnam      64   841849.31
+
+### average_order_value (1 row(s))
+ orders average_order_value min_order_value max_order_value median_order_value
+   8655            16167.33           74.25       311982.15            5942.23
+
+### total_quantity_sold (8 row(s))
+              category  units_sold
+        ALL CATEGORIES       32534
+                 Books        6563
+Beauty & Personal Care        5548
+      Sports & Fitness        5197
+           Electronics        4098
+        Home & Kitchen        4048
+               Grocery        3898
+               Fashion        3182
+
+### order_status_analysis (5 row(s))
+order_status  orders pct_of_orders units  order_value
+   DELIVERED    6933         69.33 26139 112275629.35
+     SHIPPED    1026         10.26  3835  16776439.61
+   CANCELLED     826          8.26  3050  13254811.22
+      PLACED     696          6.96  2560  10876197.28
+    RETURNED     519          5.19  1997   9029279.98
+
+### revenue_by_payment_method (6 row(s))
+  payment_method  orders net_revenue average_order_value revenue_share_pct
+             UPI    3394 54741499.44            16128.90             39.12
+     CREDIT_CARD    1619 24087650.73            14878.10             17.21
+      DEBIT_CARD    1238 22020022.01            17786.77             15.74
+CASH_ON_DELIVERY    1271 20661979.42            16256.47             14.77
+     NET_BANKING     615 10555471.37            17163.37              7.54
+          WALLET     518  7861643.27            15176.92              5.62
+
+### historical_customer_sales (0 row(s))
+(no rows)
+
+### customer_purchase_behaviour (4 row(s))
+   segment  customers orders  net_revenue avg_spend_per_customer
+   1 order        106    106   1448034.65               13660.70
+2-3 orders        132    327   5800002.20               43939.41
+4-9 orders        310   1918  31338935.12              101093.34
+10+ orders        322   6304 101341294.27              314724.52

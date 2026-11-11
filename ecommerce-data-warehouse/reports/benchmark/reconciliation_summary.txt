@@ -1,0 +1,30 @@
+
+================================================================================================
+Reconciliation Report - run run_20261111T054551Z_053e62bd
+================================================================================================
+Status Sev      Check                                                        Source      Target
+------------------------------------------------------------------------------------------------
+PASS   CRITICAL customers: input = valid + rejected + skipped                100000      100000
+PASS   CRITICAL customers: rejected rows = quarantine rows                        0           0
+PASS   CRITICAL products: input = valid + rejected + skipped                  10000       10000
+PASS   CRITICAL products: rejected rows = quarantine rows                         0           0
+PASS   CRITICAL orders: input = valid + rejected + skipped                   400737      400737
+PASS   CRITICAL orders: rejected rows = quarantine rows                           0           0
+PASS   CRITICAL order_items: input = valid + rejected + skipped             1000000     1000000
+PASS   CRITICAL order_items: rejected rows = quarantine rows                      0           0
+INFO   INFO     order_items: source record count                            1000000     1000000
+INFO   INFO     order_items: rejected record count                                0           0
+PASS   CRITICAL valid source order items = fact rows present                1000000     1000000
+PASS   CRITICAL total gross sales (valid source vs fact)                5981986500. 5981986500.
+PASS   CRITICAL total discounts (valid source vs fact)                  314303559.6 314303559.6
+PASS   CRITICAL total net revenue (valid source vs fact)                5667682940. 5667682940.
+INFO   INFO     duplicate records quarantined (all entities)                      0           0
+INFO   INFO     fact rows inserted / updated / unchanged                0 / 0 / 100 0 / 0 / 100
+PASS   CRITICAL missing dimension references                                      0           0
+PASS   CRITICAL facts linked to wrong dimension version / date                    0           0
+PASS   CRITICAL warehouse total: source order items = fact rows             1000000     1000000
+PASS   CRITICAL warehouse total: source net revenue = fact net revenue  5667682940. 5667682940.
+PASS   CRITICAL business keys with more than one current version                  0           0
+------------------------------------------------------------------------------------------------
+OVERALL: PASSED - source and target reconcile
+================================================================================================

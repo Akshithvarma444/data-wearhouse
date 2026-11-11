@@ -1,0 +1,19 @@
+product_id,product_name,category,brand,unit_price,created_at,updated_at
+PX000001,Adidas Cotton Kurta Lite,Fashion,Adidas,1849.00,2021-07-30 16:26:45,2021-08-09 22:10:20
+PX000002,Fortune Cold Pressed Oil 1L Classic,Grocery,Fortune,159.00,2021-12-25 10:12:25,2022-02-03 01:56:03
+PX000003,Tata Sampann Basmati Rice 5kg Classic,Grocery,Tata Sampann,1539.00,2022-02-14 15:17:55,2022-03-24 01:54:01
+PX000004,Mamaearth Herbal Shampoo Prime,Beauty & Personal Care,Mamaearth,1629.00,2020-12-04 23:26:20,2020-12-12 04:54:46
+PX000005,Fortune Cold Pressed Oil 1L Neo,Grocery,Fortune,979.00,2021-10-11 13:42:58,2021-10-18 03:44:22
+PX000006,Puma Running Shoes Lite,Fashion,Puma,1159.00,2020-12-23 01:39:02,2021-01-13 09:28:52
+PX000007,Samsung Laptop,Electronics,Samsung,12049.00,2020-08-14 21:38:56,2020-08-16 16:45:47
+PX000008,Realme Smartphone Plus,Electronics,Realme,9679.00,2022-02-08 14:28:48,2022-02-20 13:19:33
+PX000009,Philips Herbal Shampoo Prime,Beauty & Personal Care,Philips,1089.00,2022-05-15 16:47:45,2022-06-02 02:29:20
+PX000010,Nivia Dumbbell Set Prime,Sports & Fitness,Nivia,339.00,2020-08-23 13:32:54,2020-10-01 08:08:48
+PX000011,Lenovo Wireless Speaker Pro,Electronics,Lenovo,4119.00,2021-05-17 17:48:19,2021-06-26 10:29:08
+PX000012,Himalaya Face Wash Pro,Beauty & Personal Care,Himalaya,109.00,2022-03-02 15:05:47,2022-03-08 16:34:29
+PX000013,Rupa Cookbook,Books,Rupa,529.00,2021-05-28 15:18:10,2021-07-03 07:18:46
+PX000014,Allen Solly Silk Saree Pro,Fashion,Allen Solly,839.00,2021-08-26 08:26:54,2021-08-29 23:44:24
+PX000015,Tata Tea Dry Fruits Mix 500g Plus,Grocery,Tata Tea,139.00,2020-10-02 08:28:16,2020-11-01 07:08:05
+P900001,Adidas Cotton Kurta Lite,Fashion,Adidas,-499.00,2021-07-30 16:26:45,2021-08-09 22:10:20
+P900002,   ,Fashion,Adidas,1849.00,2021-07-30 16:26:45,2021-08-09 22:10:20
+P900003,Adidas Cotton Kurta Lite,Fashion,Adidas,abc,2021-07-30 16:26:45,2021-08-09 22:10:20

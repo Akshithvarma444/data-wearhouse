@@ -1,0 +1,37 @@
+E-Commerce Sales Data Warehouse - Performance Report
+====================================================================================================
+Generated at      : 2026-11-11 06:14:52 UTC
+Platform          : Windows-11-10.0.26200-SP0 | CPUs: 12
+Python            : 3.12.6 | pandas 3.1.1 | numpy 2.5.4 | SQLAlchemy 2.1.8
+PostgreSQL        : 18.6 (Debian 18.6-1.pgdg13+2) (Docker container, same machine)
+Data              : synthetic, seed=42; customers = n/10, products = n/100 (minimum 100 / 50)
+Method            : fresh database per size; first run = full load; second run = same files again (idempotent re-run)
+
+All timings are wall-clock seconds measured during this benchmark run.
+
+ order items   orders  generate  extract  validate  transform     load  reconcile    total    rows/s   re-run  re-run ins/unch
+-----------------------------------------------------------------------------------------------------------------------------
+       1,000      403     0.122    0.016     0.060      0.056    0.787      0.715    1.756       569    1.436           0/1000
+      10,000    4,043     0.068    0.030     0.256      0.333    1.927      0.222    2.899     3,449    2.065          0/10000
+     100,000   40,120     1.048    0.405     2.265      2.358   18.180      3.284   26.627     3,756   21.706         0/100000
+
+Column notes: 'total' is the end-to-end pipeline time (excludes data generation);
+'load' = raw landing + quarantine + source upserts + dimensions + date dim + facts;
+'transform' = typing/cleaning + fact build + point-in-time key resolution;
+'rows/s' = order-item rows / total; 're-run ins/unch' must be 0/<all> (idempotency).
+Run status (first/second): 1,000=SUCCESS/SUCCESS, 10,000=SUCCESS/SUCCESS, 100,000=SUCCESS/SUCCESS
+
+Optimisation experiment - bulk loading strategy (same fact rows, temp table):
+  row-by-row INSERT (one statement per row): 10,000 rows in 24.343s (411 rows/s)
+  PostgreSQL COPY (used by the pipeline)   : 10,000 rows in 0.446s (22,406 rows/s)
+  speed-up: 54.5x
+
+Chosen optimisation: every bulk write in the pipeline uses COPY into a temporary
+staging table followed by ONE set-based INSERT ... ON CONFLICT statement, instead of
+per-row INSERT/UPDATE round trips. Validation and measures are vectorised in pandas;
+Pydantic validates rows in chunks of BATCH_SIZE (one TypeAdapter call per chunk).
+
+Measured bottleneck at 100,000 rows: 'load' (18.18s, 68% of the total).
+Next candidates (not implemented): replace the per-row Pydantic pass with fully
+vectorised checks for very large files; partition raw.* by run for 10M+ rows; drop and
+rebuild fact indexes around very large initial loads.
